@@ -253,6 +253,11 @@ body.racing #roomtxt,body.racing #invite{display:none}
 #vmenu #edbtn{margin-top:12px;font-size:13px;padding:7px 0;width:30%;max-width:150px;white-space:nowrap}
 #hero{flex-basis:50%}
 #dstats{flex-wrap:wrap;row-gap:2px}
+#polbtn{margin-top:4px;font-size:14px;font-weight:700;padding:8px 22px;border:2px solid rgba(255,213,74,.7);border-radius:999px;background:rgba(255,213,74,.1);color:#ffd54a;cursor:pointer}
+.polL{display:flex;gap:6px;margin:8px 0}.polL button.on,.pv.on{background:#ffd54a!important;color:#222!important;border-color:#ffd54a!important}
+.polT{width:100%;border-collapse:collapse;font-size:12px}.polT th,.polT td{border-bottom:1px solid #2c3644;padding:6px 4px;text-align:center;vertical-align:middle}
+.polT td:first-child{text-align:left;max-width:190px}.polT small{opacity:.6;font-weight:400;font-size:10px;line-height:1.3;display:inline-block}
+.polT .pv{font-size:18px!important;padding:5px 7px!important;margin:1px;min-width:38px}.polT .na{opacity:.3}
 </style>
 </head>
 <body>
@@ -2887,9 +2892,10 @@ function aiControl(v,dt){
     const inBox=Math.abs(ld)<hw+4&&gap<50+Math.abs(fv)*0.5;
     const inCone=gap<48&&Math.abs(ld)<hw+gap*0.7;
     if(inBox&&gap<blkGap&&(!o.ai||o.wreck)){blk=o;blkGap=gap;}
-    if(inBox||inCone){tgt=Math.min(tgt,gap<8?0:(gap-8)*3);}
+    if((inBox||inCone)&&(o===blk&&!o.ai||POL(ai.cop||ai.mission?'sec':'civ','avoid')==='on')){tgt=Math.min(tgt,gap<8?0:(gap-8)*3);}
   }
   {const ov=impatience(v,ai,blk,blkGap,fv,dt);if(ov!==null)tgt=ov;}
+  if(!ai.cop&&!ai.mission&&!(ai.imp&&ai.imp.st===3)&&polYield(v))tgt=Math.min(tgt,18);
   const se=tgt-fv;
   v.th=se>0?clamp(se/60,0,1):clamp(se/40,-1,0);
   if(ai.chase){
@@ -2899,7 +2905,7 @@ function aiControl(v,dt){
     /* the player is off the road (grass, sidewalk, lot…): cops may follow anywhere a car can go, so they cut straight across from much farther away */
     const pi=Math.floor(player.x/CELL),pj=Math.floor(player.y/CELL),offRoad=!(pi>=0&&pj>=0&&pi<COLS&&pj<ROWS&&roadG[pj*COLS+pi]);
     const km=offRoad?2.6:1;
-    ai.direct=ai.dBlock<=0&&(dp<(ai.direct?340:240)*km||(aligned&&dp<(ai.direct?560:480)*km));
+    ai.direct=POL('sec','offroad')==='any'&&ai.dBlock<=0&&(dp<(ai.direct?340:240)*km||(aligned&&dp<(ai.direct?560:480)*km));
     if(ai.direct){
       const e2=wrap(Math.atan2(dpx,-dpy)-v.a);
       if(ai.rev>0){ai.rev-=dt;v.th=-1;v.steer=Math.sign(e2)?-Math.sign(e2):1;}
@@ -3062,6 +3068,7 @@ function hazardTick(dt){
       if(sp>110&&!v.wreck&&onRamp(v)){v.airT=v.air=clamp(0.5+sp/420,0.5,1.4);continue;}
       lethal=bodyInKill(v);
     }
+    if(lethal&&POL(polGroup(v),'hazard')!=='on')lethal=false;
     if(v===player){if(elimCD<=0&&lethal)eliminatePlayer();}
     else if(v.ai&&!v.ai.dead&&lethal){v.ai.dead=true;if(v.ai.cop)window.__copLost=(window.__copLost||0)+1;}
   }
@@ -3140,7 +3147,7 @@ function addSkid(x1,y1,x2,y2){if(skids.length<SKMAX)skids.push([x1,y1,x2,y2]);el
 function smoke(x,y,vx,vy,r,life,dark){if(parts.length<400)parts.push({t:'s',x,y,vx,vy,r,life,max:life,dark});}
 function fire(x,y){if(parts.length<400)parts.push({t:'f',x,y,vx:(Math.random()-.5)*30,vy:(Math.random()-.5)*30-18,life:0.5,max:0.5,r:7});}
 function hurt(v,amt){if(v.wreck||amt<=0)return;v.hp=Math.max(0,v.hp-amt);v.hurtT=0;if(v.hp<=0)wreckIt(v);}
-function wreckIt(v){
+function wreckIt(v){if(typeof polWreck==='function')polWreck(v);
   v.wreck=true;v.wreckT=0;v.th=0;v.steer=0;v.hb=0;v.siren=0;
   for(let i=0;i<16;i++)spark(v.x,v.y);
   for(let i=0;i<8;i++)fire(v.x+(Math.random()-.5)*20,v.y+(Math.random()-.5)*20);
@@ -4874,6 +4881,57 @@ function condDraw(){const p=player;if(!p||p.roof||p.air>0||p.wreck)return;const 
  addEventListener('pagehide',condSave);}
 window.__cond={condOf,condSet};
 
+/* ---------- v0.55: policy engine – one table decides how every group behaves; game modes override it ---------- */
+const POLG=[['civ','🚗','Civilians'],['sec','🚓','Security forces'],['ply','🧑','Players']];
+const POLR=[
+ {id:'offroad',name:'Where it may drive',tip:'Security forces: may they leave the road to cut across grass, lots and sidewalks during a chase?',g:['sec'],v:[['roads','🛣','Roads only'],['any','🌍','Anywhere a car fits']]},
+ {id:'hazard',name:'Cliffs & kill zones',tip:'Is this group knocked out when it falls off a cliff or enters an elimination zone?',g:['civ','sec','ply'],v:[['on','💀','Knocked out'],['off','🛡','Immune']]},
+ {id:'destroyed',name:'When a player wrecks it',tip:'What happens to the player who destroys a vehicle of this group?',g:['civ','sec'],v:[['none','➖','Nothing'],['wanted','⭐','+1 wanted star']]},
+ {id:'yield',name:'Others clear the way',tip:'Do civilian cars slow down and let this group pass when its siren is on?',g:['sec','ply'],v:[['on','🚨','Traffic gives way'],['off','➖','Traffic ignores it']]},
+ {id:'avoid',name:'Avoids contact',tip:'Does this group brake to avoid touching other vehicles?',g:['civ','sec'],v:[['on','🤝','Keeps distance'],['off','💥','Pushes through']]}];
+const POLDEF={offroad:{sec:'any'},hazard:{civ:'on',sec:'on',ply:'on'},destroyed:{civ:'none',sec:'none'},yield:{sec:'on',ply:'off'},avoid:{civ:'on',sec:'on'}};
+const POLMODES=[['base','Base rules'],['race','During a race']];
+let POLICY={base:JSON.parse(JSON.stringify(POLDEF)),race:{}};
+try{const s=JSON.parse(localStorage.getItem('cd:policy')||'null');if(s&&s.base){for(const r in POLDEF)POLICY.base[r]=Object.assign({},POLDEF[r],s.base[r]||{});POLICY.race=s.race||{};}}catch(_){}
+function polSave(){try{localStorage.setItem('cd:policy',JSON.stringify(POLICY));}catch(_){}}
+function polMode(){return (typeof RC!=='undefined'&&RC.st!=='idle'&&RC.st!=='done')?'race':'base';}
+function POL(g,r){const m=polMode();if(m!=='base'){const o=POLICY[m][r];if(o&&o[g])return o[g];}const b=POLICY.base[r];return (b&&b[g])||(POLDEF[r]&&POLDEF[r][g]);}
+function polGroup(v){return (v===player||v.remote)?'ply':(v.ai&&(v.ai.cop||v.ai.mission))?'sec':'civ';}
+function polWreck(v){
+  if(!v.ai||v.wreck||typeof wanted==='undefined')return;
+  if(v.hw!==player&&!(v.ai.cop&&v.ai.chase))return;
+  if(POL(polGroup(v),'destroyed')==='wanted'&&wanted<3){setWanted(wanted+1);toast('⭐ Wanted level up – you wrecked a '+(polGroup(v)==='sec'?'security vehicle':'civilian car'));}
+}
+/* civilians give way: is a siren vehicle of a "yield" group coming up close behind / beside this car? */
+function polYield(v){
+  for(const o of vehicles){if(o===v||!o.siren||o.wreck)continue;const g=polGroup(o);if(g==='civ'||POL(g,'yield')!=='on')continue;
+    const dx=o.x-v.x,dy=o.y-v.y;if(dx*dx+dy*dy<300*300&&Math.hypot(o.vx,o.vy)>60)return true;}
+  return false;
+}
+function polOpen(){
+  let layer=polOpen.layer||'base';
+  const draw=()=>{
+    let h='<p class="muted">One table for the whole game. Tap an icon to change a rule; hover or long-press for an explanation. "During a race" only lists what should be different while a race is running.</p>';
+    h+='<div class="polL">'+POLMODES.map(m=>'<button data-l="'+m[0]+'" class="'+(m[0]===layer?'on':'')+'">'+m[1]+'</button>').join('')+'</div>';
+    h+='<table class="polT"><tr><th></th>'+POLG.map(g=>'<th title="'+g[2]+'">'+g[1]+'<br><small>'+g[2]+'</small></th>').join('')+'</tr>';
+    for(const r of POLR){h+='<tr><td title="'+esc(r.tip)+'"><b>'+r.name+'</b><br><small>'+esc(r.tip)+'</small></td>';
+      for(const g of POLG){
+        if(r.g.indexOf(g[0])<0){h+='<td class="na">·</td>';continue;}
+        const cur=layer==='base'?POLICY.base[r.id][g[0]]:((POLICY[layer][r.id]||{})[g[0]]||'');
+        h+='<td>'+(layer!=='base'?'<button data-r="'+r.id+'" data-g="'+g[0]+'" data-v="" class="pv'+(cur===''?' on':'')+'" title="Same as base rules">＝</button>':'')+
+          r.v.map(o=>'<button data-r="'+r.id+'" data-g="'+g[0]+'" data-v="'+o[0]+'" class="pv'+(cur===o[0]?' on':'')+'" title="'+o[2]+'">'+o[1]+'</button>').join('')+'</td>';}
+      h+='</tr>';}
+    h+='</table><div class="row"><button id="polReset" class="danger">Reset to defaults</button></div>';
+    modal('⚖ Policy – who may do what',h);
+    document.querySelectorAll('#mbody .polL button').forEach(b=>b.onclick=()=>{layer=polOpen.layer=b.dataset.l;draw();});
+    document.querySelectorAll('#mbody .pv').forEach(b=>b.onclick=()=>{const d=b.dataset;
+      if(layer==='base')POLICY.base[d.r][d.g]=d.v;else{const o=POLICY[layer][d.r]||(POLICY[layer][d.r]={});if(d.v)o[d.g]=d.v;else delete o[d.g];}
+      polSave();draw();});
+    $('polReset').onclick=()=>{POLICY={base:JSON.parse(JSON.stringify(POLDEF)),race:{}};polSave();draw();};
+  };draw();
+}
+window.__pol={POL,get P(){return POLICY;},polOpen};
+
 /* ---------- v0.45: multiplayer race with checkpoints (rides on the existing relay: {t:'s',race:{...}}) ---------- */
 const RC={st:'idle',cps:[],laps:2,i:0,t0:0,cd:0,fin:0,pl:new Map(),R:140,last:0};
 (function(){const s=document.createElement('style');s.textContent=
@@ -5057,7 +5115,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.54 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.55 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
@@ -5179,6 +5237,10 @@ let sx=null;cv.addEventListener('pointerdown',e=>{sx=e.clientX;});cv.addEventLis
 addEventListener('resize',()=>{if(mode==='menu'&&an){an.t=an.T;an.sk=[];size();draw();}});
 info();setTimeout(()=>go(1),400);window.__demo={sel,go};
 })();}catch(e){console.error(e);}
+
+/* v0.55: policy button – menu + pause menu */
+try{const b=document.createElement('button');b.id='polbtn';b.type='button';b.textContent='⚖ Policy';b.title='Rules for every group: civilians, security forces, players';b.onclick=polOpen;$('pick').insertBefore(b,$('vmenu').nextSibling);
+const q=document.createElement('button');q.className='pgl';q.textContent='⚖ Policy';q.onclick=()=>{polOpen();};const g=$('p_gq');g.parentNode.insertBefore(q,g.nextSibling);}catch(e){console.error(e);}
 
 showUI();
 setMap(showcaseMap());
