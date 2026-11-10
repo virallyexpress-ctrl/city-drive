@@ -152,6 +152,7 @@ canvas#game{touch-action:none;position:fixed;left:0;top:0;width:100%;height:100%
 
 /* minimap scales with the screen: small on phones, bigger on desktops */
 #mini{width:clamp(96px,24vmin,260px)!important;height:clamp(96px,24vmin,260px)!important}
+#mapDef{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);color:#ffd54a;border-radius:8px;font-size:18px;line-height:1;padding:3px 8px;cursor:pointer}#mapDef.on{background:rgba(255,213,74,.25);border-color:#ffd54a}
 </style>
 </head>
 <body>
@@ -204,7 +205,7 @@ canvas#game{touch-action:none;position:fixed;left:0;top:0;width:100%;height:100%
   <h1>City Drive</h1>
   <p>Pick a car, pick a map – or build your own map in the editor</p>
   <div id="cards"></div>
-  <div id="mapsel">Map: <select id="mapSel"></select></div>
+  <div id="mapsel">Map: <select id="mapSel"></select><button id="mapDef" type="button">☆</button></div>
   <button id="go">Start driving ▶</button>
   <button id="edbtn">✎ Map Editor</button>
   <div id="mp"><b>Multiplayer</b><input id="mpName" placeholder="Your name" maxlength="12"><button id="mpCreate">Create room</button><input id="mpCode" placeholder="CODE" maxlength="4"><button id="mpJoin">Join</button></div>
@@ -3245,7 +3246,11 @@ VEH.forEach((d,i)=>{
 function renderSel(){[...cardsEl.children].forEach((c,i)=>c.classList.toggle('sel',i===selIdx));}
 renderSel();
 function listMaps(){const out=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('cdmap:'))out.push(k.slice(6));}}catch(e){}return out.sort();}
-function fillMapSel(sel){const s=$('mapSel'),cur=sel!==undefined?sel:s.value;s.innerHTML='<option value="">Demo city (3×3 blocks)</option>'+listMaps().map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');s.value=[...s.options].some(o=>o.value===cur)?cur:'';}
+const getDefMap=()=>{try{return localStorage.getItem('cd:defmap')||'';}catch(e){return '';}};
+function fillMapSel(sel){const s=$('mapSel'),df=getDefMap(),cur=sel!==undefined?sel:(s.dataset.i?s.value:df);s.dataset.i=1;
+  s.innerHTML='<option value="">'+(df===''?'⭐ ':'')+'Demo city (3×3 blocks)</option>'+listMaps().map(n=>'<option value="'+esc(n)+'">'+(df===n?'⭐ ':'')+esc(n)+'</option>').join('');
+  s.value=[...s.options].some(o=>o.value===cur)?cur:'';markDefBtn();}
+function markDefBtn(){const b=$('mapDef');if(!b)return;const on=$('mapSel').value===getDefMap();b.textContent=on?'⭐':'☆';b.title=on?'This map opens first. Click to stop':'Make this map the one the game starts with';b.classList.toggle('on',on);}
 /* default demo city: a 3×3 map that shows off the newer features */
 function showcaseMap(){
   const m=genCity(3,0);m.name='Demo city';m.round=64;
@@ -3367,6 +3372,10 @@ function sirFreq(m,t){
   if(m===3)return Math.floor(t*6)%2?960:770;
   return 750+250*Math.sin(t*5.5);
 }
+
+/* default start map: the user's choice, remembered in this browser */
+$('mapDef').onclick=()=>{const v=$('mapSel').value,on=v===getDefMap();try{if(on&&v!==''){localStorage.setItem('cd:defmap','');toast('⭐ Default map: Demo city');}else{localStorage.setItem('cd:defmap',v);toast(v===''?'⭐ Default map: Demo city':'⭐ “'+v+'” will open first');}}catch(e){toast('Could not save the default');}fillMapSel(v);};
+$('mapSel').addEventListener('change',markDefBtn);
 
 const cam={x:0,y:0,z:1,shake:0};
 let PAR=1;
@@ -4575,7 +4584,7 @@ function chatDraw(){
   const th=CH.th.get(CH.open);if(!th)return;const box=$('cmsgs');box.innerHTML='';
   for(const m of th.msgs){
     const d=document.createElement('div');d.className='cm'+(m.me?' me':'');
-    if(m.k==='v'){const b=document.createElement('button');b.textContent='▶ voice message';b.onclick=()=>{try{new Audio(m.x).play();}catch(e){}};d.appendChild(b);}
+    if(m.k==='v'){const b=document.createElement('button');b.textContent='▶ voice message';b.onclick=()=>chatPlay(m.x);d.appendChild(b);}
     else d.textContent=m.x;
     box.appendChild(d);
   }
@@ -4595,18 +4604,46 @@ function renderInbox(){
     d.onclick=()=>chatOpen(o.id,o.name);p.appendChild(d);
   }
 }
+/* voice messages are recorded as plain 11 kHz mono WAV (not MediaRecorder), so a message from any phone plays on any computer */
 async function chatRecStart(){
   if(!CH.open||CH.rec)return;
   try{
-    const st=await navigator.mediaDevices.getUserMedia({audio:true}),mr=new MediaRecorder(st),ch=[];
-    CH.rec={mr,st,to:CH.open};$('cmic').classList.add('rec');
-    mr.ondataavailable=e=>{if(e.data.size)ch.push(e.data);};
-    mr.onstop=()=>{st.getTracks().forEach(t=>t.stop());const to=CH.rec&&CH.rec.to;CH.rec=null;$('cmic').classList.remove('rec');
-      if(!ch.length||!to)return;const fr=new FileReader();fr.onload=()=>{if(fr.result.length<400000)chatSend(to,'v',fr.result);else toast('Voice message too long');};fr.readAsDataURL(new Blob(ch,{type:mr.mimeType}));};
-    mr.start();setTimeout(()=>chatRecStop(),8000);
-  }catch(e){toast('Microphone not available');CH.rec=null;}
+    const st=await navigator.mediaDevices.getUserMedia({audio:true});
+    const AC2=window.AudioContext||window.webkitAudioContext,ac=new AC2();if(ac.state==='suspended')ac.resume();
+    const src=ac.createMediaStreamSource(st),pr=ac.createScriptProcessor(4096,1,1),mute=ac.createGain(),chunks=[];mute.gain.value=0;
+    const rec={on:true,to:CH.open};CH.rec=rec;$('cmic').classList.add('rec');
+    pr.onaudioprocess=e=>{if(rec.on)chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));};
+    src.connect(pr);pr.connect(mute);mute.connect(ac.destination);
+    rec.stop=()=>{
+      if(!rec.on)return;rec.on=false;
+      try{src.disconnect();pr.disconnect();}catch(_){}st.getTracks().forEach(t=>t.stop());
+      const sr=ac.sampleRate;try{ac.close();}catch(_){}
+      CH.rec=null;$('cmic').classList.remove('rec');
+      let n=0;for(const c of chunks)n+=c.length;if(!rec.to||n<sr*0.3){return;}
+      const all=new Float32Array(n);{let o=0;for(const c of chunks){all.set(c,o);o+=c.length;}}
+      const R=11025,ratio=sr/R,len=Math.floor(n/ratio),pcm=new Int16Array(len);
+      for(let i=0;i<len;i++){const a0=Math.floor(i*ratio),a1=Math.max(a0+1,Math.floor((i+1)*ratio));let sum=0;for(let j=a0;j<a1&&j<n;j++)sum+=all[j];const v=clamp(sum/(a1-a0),-1,1);pcm[i]=v<0?v*32768:v*32767;}
+      const buf=new ArrayBuffer(44+len*2),dv=new DataView(buf),ws=(o,t)=>{for(let i=0;i<t.length;i++)dv.setUint8(o+i,t.charCodeAt(i));};
+      ws(0,'RIFF');dv.setUint32(4,36+len*2,true);ws(8,'WAVE');ws(12,'fmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,R,true);dv.setUint32(28,R*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);ws(36,'data');dv.setUint32(40,len*2,true);
+      new Int16Array(buf,44).set(pcm);
+      const u8=new Uint8Array(buf);let bin='';for(let i=0;i<u8.length;i+=0x8000)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));
+      const url='data:audio/wav;base64,'+btoa(bin);
+      if(url.length<400000)chatSend(rec.to,'v',url);else toast('Voice message too long');
+    };
+    setTimeout(()=>chatRecStop(),8000);
+  }catch(e){toast('Microphone not available');CH.rec=null;$('cmic').classList.remove('rec');}
 }
-function chatRecStop(){if(CH.rec&&CH.rec.mr.state==='recording')CH.rec.mr.stop();}
+function chatRecStop(){if(CH.rec&&CH.rec.stop)CH.rec.stop();}
+/* play a voice message; if the browser refuses the format, decode it ourselves */
+function chatPlay(url){
+  const done=()=>{};
+  try{const a=new Audio(url),p=a.play();if(p&&p.catch)p.catch(()=>chatPlayDecode(url));}catch(e){chatPlayDecode(url);}
+}
+async function chatPlayDecode(url){
+  try{const ab=await (await fetch(url)).arrayBuffer(),AC2=window.AudioContext||window.webkitAudioContext,ac=new AC2();if(ac.state==='suspended')await ac.resume();
+    const buf=await new Promise((ok,no)=>ac.decodeAudioData(ab,ok,no)),s=ac.createBufferSource();s.buffer=buf;s.connect(ac.destination);s.start();}
+  catch(e){toast('Could not play this voice message');}
+}
 /* clicks: on a player's car in the world or a dot on the minimap */
 function chatPick(wx,wy,rad){let best=null,bd=rad;for(const [id,r] of MP.remotes){const d=Math.hypot(r.v.x-wx,r.v.y-wy);if(d<bd){bd=d;best=[id,r.v.name];}}if(best){chatOpen(best[0],best[1]);return true;}return false;}
 $('game').addEventListener('pointerdown',e=>{
@@ -4747,7 +4784,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.40 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.42 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
