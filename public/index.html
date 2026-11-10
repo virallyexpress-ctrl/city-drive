@@ -109,7 +109,11 @@ canvas#game{touch-action:none;position:fixed;left:0;top:0;width:100%;height:100%
 #tsir{right:max(14px,env(safe-area-inset-right));bottom:calc(max(14px,env(safe-area-inset-bottom)) + clamp(100px,24vmin,132px) + 66px);width:clamp(62px,13vmin,84px);height:36px;font-size:16px}
 #tsw{right:172px!important;top:10px!important}#mute{right:218px!important;top:10px!important}
 
-#policefx{position:fixed;inset:0;pointer-events:none;display:none;z-index:3;animation:pf .55s steps(1) infinite}
+#policefx{position:fixed;inset:0;pointer-events:none;display:none;z-index:3}
+#policefx i{position:absolute;top:0;bottom:0;width:70px;opacity:0;will-change:opacity}
+#policefx .pfr{left:0;background:linear-gradient(90deg,rgba(255,30,30,.6),rgba(255,30,30,0));animation:pfa .6s steps(1) infinite}
+#policefx .pfb{right:0;background:linear-gradient(270deg,rgba(40,70,255,.6),rgba(40,70,255,0));animation:pfb .6s steps(1) infinite}
+@keyframes pfa{0%{opacity:1}50%{opacity:0}}@keyframes pfb{0%{opacity:0}50%{opacity:1}}
 @keyframes pf{0%{box-shadow:inset 110px 0 130px -50px rgba(255,30,30,.9),inset -110px 0 130px -50px rgba(30,60,255,0)}50%{box-shadow:inset 110px 0 130px -50px rgba(255,30,30,0),inset -110px 0 130px -50px rgba(30,60,255,.9)}}
 #pa{position:fixed;left:50%;top:46px;transform:translateX(-50%);display:none;z-index:5;pointer-events:none;max-width:60vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;font-weight:800;letter-spacing:.5px;font-size:13px;line-height:20px;color:#fff;background:rgba(0,0,0,.45);padding:0 12px;border-radius:999px;border-left:4px solid #ff3b30;border-right:4px solid #3b6bff;text-shadow:0 1px 4px #000}
 #pa.hot{animation:pah .3s steps(1) infinite}
@@ -151,8 +155,23 @@ canvas#game{touch-action:none;position:fixed;left:0;top:0;width:100%;height:100%
 }
 
 /* minimap scales with the screen: small on phones, bigger on desktops */
-#mini{width:clamp(96px,24vmin,260px)!important;height:clamp(96px,24vmin,260px)!important}
+#mini{width:var(--mw)!important;height:var(--mw)!important}
 #mapDef{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);color:#ffd54a;border-radius:8px;font-size:18px;line-height:1;padding:3px 8px;cursor:pointer}#mapDef.on{background:rgba(255,213,74,.25);border-color:#ffd54a}
+
+/* danger glow: four static edge gradients, only their opacity animates */
+#dgr{background:none}#dgr i{position:absolute;opacity:0;will-change:opacity}
+#dgr .dgl{left:0;top:0;bottom:0;width:170px;background:linear-gradient(90deg,rgba(255,20,20,.85),rgba(255,20,20,0))}
+#dgr .dgr{right:0;top:0;bottom:0;width:170px;background:linear-gradient(270deg,rgba(255,20,20,.85),rgba(255,20,20,0))}
+#dgr .dgt{left:0;right:0;top:0;height:170px;background:linear-gradient(180deg,rgba(255,20,20,.85),rgba(255,20,20,0))}
+#dgr .dgb{left:0;right:0;bottom:0;height:170px;background:linear-gradient(0deg,rgba(255,20,20,.85),rgba(255,20,20,0))}
+/* blur behind the touch buttons is costly on tablets: use a plain tint instead */
+.pd,#joy{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#pausebox{backdrop-filter:none!important}
+/* top-row buttons follow the minimap width */
+:root{--mw:clamp(96px,24vmin,260px)}
+#tsw{right:calc(var(--mw) + 22px)!important}#mute{right:calc(var(--mw) + 68px)!important}
+#inbox,#tctl,#tinv{right:calc(var(--mw) + 114px)!important}#inarrow{right:calc(var(--mw) + 86px)!important}
+.pbx .pgl{display:block;width:100%;margin-top:8px}
 </style>
 </head>
 <body>
@@ -2519,7 +2538,7 @@ const DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
 const $=id=>document.getElementById(id);
 const cv=$('game'),ctx=cv.getContext('2d'),mini=$('mini'),mctx=mini.getContext('2d');
 let W=0,H=0,dpr=1;
-function resize(){dpr=Math.min(window.devicePixelRatio||1,2);W=cv.width=Math.floor(innerWidth*dpr);H=cv.height=Math.floor(innerHeight*dpr);}
+function resize(){dpr=Math.min(window.devicePixelRatio||1,2)*(window.QSV||1);W=cv.width=Math.floor(innerWidth*dpr);H=cv.height=Math.floor(innerHeight*dpr);}
 addEventListener('resize',resize);resize();
 
 /* ---------- sprites ---------- */
@@ -2932,7 +2951,7 @@ function expressTick(dt){
 /* red proximity warning: screen edge glows on the side of the nearest lethal zone (kill / cliff / 'fall' map edge) */
 const DGR=260;let dgT=0;
 function dangerTick(dt){
-  const el=document.getElementById('dgr'),tx=document.getElementById('dgrt');if(!el)return;
+  const el=document.getElementById('dgr'),tx=document.getElementById('dgrt');if(!el||!el._s)return;
   const p=player;let best=1e9,ux=0,uy=0;
   if(p&&p.act&&!(p.air>0)&&!p.roof&&!p.wreck){
     for(const z of MAP.zones){if(z.t!=='kill'&&z.t!=='cliff')continue;
@@ -2940,11 +2959,11 @@ function dangerTick(dt){
       if(d<best){best=d;ux=cx-p.x;uy=cy-p.y;}}
     if(MAP.edge==='fall'){const c=[[p.x,-1,0],[WW-p.x,1,0],[p.y,0,-1],[WH-p.y,0,1]];for(const q of c)if(q[0]<best){best=Math.max(0,q[0]);ux=q[1];uy=q[2];}}
   }
-  if(best>=DGR){el.style.opacity=0;tx.style.opacity=0;return;}
-  dgT+=dt;const k=1-best/DGR,pulse=0.65+0.35*Math.sin(dgT*(6+14*k)),L=Math.hypot(ux,uy)||1;ux/=L;uy/=L;
-  const S=Math.round(70+60*k);
-  el.style.boxShadow='inset '+Math.round(-ux*S*0.55)+'px '+Math.round(-uy*S*0.55)+'px '+Math.round(80+70*k)+'px '+Math.round(10+40*k)+'px rgba(255,20,20,'+(0.85*k).toFixed(2)+')';
-  el.style.opacity=(pulse).toFixed(2);
+  if(best>=DGR){if(el._on){el._on=0;for(const s of el._s)s.style.opacity=0;tx.style.opacity=0;}return;}
+  el._on=1;dgT+=dt;const k=1-best/DGR,pulse=0.65+0.35*Math.sin(dgT*(6+14*k)),L=Math.hypot(ux,uy)||1;ux/=L;uy/=L;
+  /* only opacity changes per frame (cheap): each edge glows in proportion to how much the danger lies that way */
+  const w=[Math.max(0,-ux),Math.max(0,ux),Math.max(0,-uy),Math.max(0,uy)];
+  for(let i=0;i<4;i++)el._s[i].style.opacity=(clamp(w[i]*1.1+0.12,0,1)*Math.min(1,k*1.7)*pulse).toFixed(2);
   tx.style.opacity=k>0.45?pulse.toFixed(2):0;
 }
 function hazardTick(dt){
@@ -2971,7 +2990,7 @@ function hazardTick(dt){
     setWanted(0);window.__copLost=0;toast('🏁 All units are out – you are free!');
   }
 }
-{const e=document.createElement('div');e.id='elim';document.body.appendChild(e);const d=document.createElement('div');d.id='dgr';document.body.appendChild(d);const t=document.createElement('div');t.id='dgrt';t.textContent='⚠ DANGER ⚠';document.body.appendChild(t);}
+{const e=document.createElement('div');e.id='elim';document.body.appendChild(e);const d=document.createElement('div');d.id='dgr';d._s=['l','r','t','b'].map(c=>{const s=document.createElement('i');s.className='dg'+c;d.appendChild(s);return s;});document.body.appendChild(d);const t=document.createElement('div');t.id='dgrt';t.textContent='⚠ DANGER ⚠';document.body.appendChild(t);}
 
 /* emergency stations: police go home after a chase; ambulance / fire truck respond to wrecks and return */
 const STN={pstation:['Police station','🚓','#2b4c8c'],astation:['Ambulance station','🚑','#c24b4b'],fstation:['Fire station','🚒','#d1741f']};
@@ -3649,8 +3668,14 @@ function drawVehicle(v,t){
   }
   ctx.restore();
 }
+/* graphics quality: render resolution scale (QSV). Auto only ever steps DOWN when frames are slow, and remembers it. */
+let GQ='auto';window.QSV=1;try{GQ=localStorage.getItem('cd:gq')||'auto';const q=+localStorage.getItem('cd:qs');window.QSV=GQ==='low'?0.6:GQ==='high'?1:(q>=0.5&&q<=1?q:1);}catch(_){}
+resize();
+let _pt=0,_pa=0,_pn=0;
+function perfTick(){const n=performance.now(),d=n-_pt;_pt=n;if(GQ!=='auto'||d>250||mode!=='game'||window.PAUSED){_pa=_pn=0;return;}_pa+=d;_pn++;
+  if(_pn>=90){const avg=_pa/_pn;_pa=_pn=0;if(avg>34&&window.QSV>0.5){window.QSV=Math.max(0.5,window.QSV*0.82);try{localStorage.setItem('cd:qs',String(window.QSV));}catch(_){}resize();toast('⚡ Graphics eased for smoother play');}}}
 function render(t,dt){
-  const p=player;PAR=1;
+  perfTick();const p=player;PAR=1;
   const spd=Math.hypot(p.vx,p.vy),d=VEH[p.vi];
   const s0=Math.min(H/700,W/520),z=s0*(1-0.24*clamp(spd/d.max,0,1));
   cam.z+=(z-cam.z)*(1-Math.exp(-3*dt));
@@ -4441,7 +4466,7 @@ function mpConnect(onopen){
 }
 function mpCreate(){
   if(mode!=='menu')return;
-  MP.demo=!$('mapSel').value;setMap(chosenMap());MP.creator=true;
+  MP.demo=false;setMap(chosenMap());MP.creator=true;   /* always send the real map, so everyone sees the same city */
   mpConnect(()=>MP.ws.send(JSON.stringify({t:'create'})));
 }
 function mpJoin(code){
@@ -4453,7 +4478,7 @@ function mpMsg(m){
   if(m.t==='room'){
     MP.code=m.code;MP.id=m.id;MP.n=m.n||1;
     if(MP.creator){enterGame(false);MP.ws.send(JSON.stringify(MP.demo?{t:'map',demo:1}:{t:'map',map:MAP}));}
-    else{setMap(m.demo?genCity(20,0):m.map);enterGame(false);}
+    else{setMap(m.demo?showcaseMap():m.map);enterGame(false);}
     updRoom();
     if(MP.creator)openInvite();
   }
@@ -4683,11 +4708,12 @@ function radioClick(){
   g.gain.setValueAtTime(0.11,AC.currentTime);g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.14);
   s.connect(f);f.connect(g);g.connect(AC.destination);s.start();s.stop(AC.currentTime+0.16);
 }
+let PAV=true;try{PAV=localStorage.getItem('cd:pav')!=='0';}catch(_){}   /* spoken police announcements on/off */
 function paSay(txt,hot){
   const el=$('pa');el.textContent=(hot?'🚔 ':'📻 ')+txt.toUpperCase();el.style.display='block';el.classList.toggle('hot',!!hot);
   clearTimeout(paHide);paHide=setTimeout(()=>{el.style.display='none';},2600);
   radioClick();
-  if(muted||!('speechSynthesis' in window))return;
+  if(muted||!PAV||!('speechSynthesis' in window))return;
   try{
     speechSynthesis.cancel();
     /* panicked delivery: fast, high-strung, clipped into short bursts; the closer the cops / the higher the wanted level, the more frantic */
@@ -4701,6 +4727,7 @@ function paSay(txt,hot){
     }
   }catch(e){}
 }
+$('policefx').innerHTML='<i class="pfr"></i><i class="pfb"></i>';
 function policeFX(dt){
   const fx=$('policefx'),on=wanted>0&&player&&!player.wreck;
   if(!on){
@@ -4709,7 +4736,7 @@ function policeFX(dt){
     paT=3;chaseMode=0;prevNear=1e9;dop+=(1-dop)*0.2;return;
   }
   // screen glow gets stronger the closer the cops are
-  if(copNear<520){const k=clamp(1-copNear/520,0,1);fx.style.display='block';fx.style.opacity=(0.25+0.75*k).toFixed(2);}else fx.style.display='none';
+  if(copNear<520){const k=clamp(1-copNear/520,0,1),op=(0.18+0.45*k).toFixed(1);if(fx.style.display!=='block')fx.style.display='block';if(fx.style.opacity!==op)fx.style.opacity=op;}else if(fx.style.display!=='none')fx.style.display='none';
   if(copNear<130)cam.shake=Math.max(cam.shake,1.6);
   // doppler: pitch rises when the nearest cop closes in, falls when he drops back
   const rate=(copNear-prevNear)/Math.max(dt,0.001);prevNear=copNear;
@@ -4784,7 +4811,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.42 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.43 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
@@ -4816,17 +4843,21 @@ window.PAUSED=false;
 {
  const pb=document.createElement('button');pb.id='tpause';pb.title='Pause / menu (Esc or P)';pb.textContent='⏸';document.body.appendChild(pb);
  const ov=document.createElement('div');ov.id='pausebox';
- ov.innerHTML='<div class="pbx"><h2>Paused</h2><button id="p_res" class="go">▶ Resume</button><button id="p_rst">↺ Back to road</button><button id="p_menu"></button><p class="muted" id="p_note"></p></div>';
+ ov.innerHTML='<div class="pbx"><h2>Paused</h2><button id="p_res" class="go">▶ Resume</button><button id="p_rst">↺ Back to road</button><button id="p_pa" class="pgl"></button><button id="p_gq" class="pgl"></button><button id="p_menu"></button><p class="muted" id="p_note"></p></div>';
  document.body.appendChild(ov);
  window.setPause=function(v){
   v=!!v&&mode==='game';window.PAUSED=v;ov.style.display=v?'flex':'none';
   pb.style.display=mode==='game'?'block':'none';
-  if(v){silence();$('p_menu').textContent=fromEditor?'✏️ Back to the editor':'🏠 Main menu';$('p_note').textContent=(typeof MP!=='undefined'&&MP.ws)?'Other players keep driving while you are paused.':'';}
+  if(v){silence();pbRefresh();$('p_menu').textContent=fromEditor?'✏️ Back to the editor':'🏠 Main menu';$('p_note').textContent=(typeof MP!=='undefined'&&MP.ws)?'Other players keep driving while you are paused.':'';}
   else audioResume();
  };
  window.togglePause=function(){if(mode==='game')setPause(!window.PAUSED);};
  pb.onclick=()=>togglePause();
  $('p_res').onclick=()=>setPause(false);
+ const GQN={auto:'⚡ Graphics: Auto (eases off if slow)',low:'⚡ Graphics: Low (smoothest)',high:'⚡ Graphics: High (sharpest)'};
+ window.pbRefresh=()=>{$('p_pa').textContent=PAV?'📻 Police voice: ON':'🔇 Police voice: OFF';$('p_gq').textContent=GQN[GQ]||GQN.auto;};
+ $('p_pa').onclick=()=>{PAV=!PAV;try{localStorage.setItem('cd:pav',PAV?'1':'0');}catch(_){}if(!PAV){try{speechSynthesis.cancel();}catch(_){}}pbRefresh();};
+ $('p_gq').onclick=()=>{GQ=GQ==='auto'?'low':GQ==='low'?'high':'auto';try{localStorage.setItem('cd:gq',GQ);localStorage.setItem('cd:qs','1');}catch(_){}window.QSV=GQ==='low'?0.6:1;resize();pbRefresh();};
  $('p_rst').onclick=()=>{setPause(false);if(typeof resetPlayer==='function')resetPlayer();};
  $('p_menu').onclick=()=>{setPause(false);exitGame();};
  pb.style.display='none';
