@@ -1,4 +1,4 @@
-// City Drive – tiny multiplayer relay + static host.  Run: npm install && node server.js
+// ViRally Drive – tiny multiplayer relay + static host.  Run: npm install && node server.js
 const http=require('http'),fs=require('fs'),path=require('path');
 const {WebSocketServer}=require('ws');
 const PORT=process.env.PORT||8080,MAX=10;
@@ -24,8 +24,8 @@ const tgName=f=>String(f.first_name||f.username||'Driver').replace(/[<>&"']/g,''
 async function tgUpdate(u){
   if(u.message&&typeof u.message.text==='string'){
     const m=u.message,tok=(m.text.match(/^\/start\s+([a-f0-9]{16})$/)||[])[1],p=tok&&tgPend.get(tok);
-    if(!p||p.exp<Date.now())return tgCall('sendMessage',{chat_id:m.chat.id,text:'City Drive: open the game, press "Log in with Telegram" and scan the QR code.'});
-    return tgCall('sendMessage',{chat_id:m.chat.id,text:'Log in to City Drive as "'+tgName(m.from)+'"?',reply_markup:{inline_keyboard:[[{text:'✅ Approve',callback_data:'ok:'+tok},{text:'✖ Cancel',callback_data:'no:'+tok}]]}});
+    if(!p||p.exp<Date.now())return tgCall('sendMessage',{chat_id:m.chat.id,text:'ViRally Drive: open the game, press "Log in with Telegram" and scan the QR code.'});
+    return tgCall('sendMessage',{chat_id:m.chat.id,text:'Log in to ViRally Drive as "'+tgName(m.from)+'"?',reply_markup:{inline_keyboard:[[{text:'✅ Approve',callback_data:'ok:'+tok},{text:'✖ Cancel',callback_data:'no:'+tok}]]}});
   }
   if(u.callback_query){
     const q=u.callback_query,mm=String(q.data||'').match(/^(ok|no):([a-f0-9]{16})$/),p=mm&&tgPend.get(mm[2]);let txt='This login request has expired.';
@@ -100,4 +100,4 @@ wss.on('connection',ws=>{
   ws.on('close',()=>leave(ws));ws.on('error',()=>{});
 });
 setInterval(()=>{for(const ws of wss.clients){if(!ws.alive){ws.terminate();continue;}ws.alive=false;try{ws.ping();}catch(e){}}},30000);
-server.listen(PORT,()=>console.log('City Drive server on :'+PORT));
+server.listen(PORT,()=>console.log('ViRally Drive server on :'+PORT));
