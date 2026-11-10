@@ -2,8 +2,65 @@
 const http=require('http'),fs=require('fs'),path=require('path');
 const {WebSocketServer}=require('ws');
 const PORT=process.env.PORT||8080,MAX=10;
+/* ---------- Telegram login (optional): set TG_TOKEN in the host's environment variables ---------- */
+const crypto=require('crypto'),https=require('https');
+const TG_TOKEN=process.env.TG_TOKEN||'',TG_API=process.env.TG_API||'https://api.telegram.org';
+let TG_BOT='';const tgPend=new Map();
+function tgCall(method,body){return new Promise((res,rej)=>{
+  const u=new URL(TG_API+'/bot'+TG_TOKEN+'/'+method),d=JSON.stringify(body||{});
+  const rq=(u.protocol==='http:'?http:https).request(u,{method:'POST',headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(d)},timeout:40000},r=>{
+    let b='';r.on('data',c=>b+=c);r.on('end',()=>{try{const j=JSON.parse(b);j.ok?res(j.result):rej(new Error(j.description||'tg'));}catch(e){rej(e);}});});
+  rq.on('error',rej);rq.on('timeout',()=>rq.destroy(new Error('timeout')));rq.end(d);});}
+const b64=o=>Buffer.from(JSON.stringify(o)).toString('base64url');
+const mac=p=>crypto.createHmac('sha256',TG_TOKEN).update(p).digest('base64url');
+function tgSign(o){const p=b64(o);return p+'.'+mac(p);}
+function tgVerify(s){
+  if(!TG_TOKEN||typeof s!=='string')return null;const i=s.indexOf('.');if(i<1)return null;
+  const p=s.slice(0,i),g=Buffer.from(s.slice(i+1)),w=Buffer.from(mac(p));
+  if(g.length!==w.length||!crypto.timingSafeEqual(g,w))return null;
+  try{const o=JSON.parse(Buffer.from(p,'base64url').toString());return o.exp>Date.now()?o:null;}catch(e){return null;}
+}
+const tgName=f=>String(f.first_name||f.username||'Driver').replace(/[<>&"']/g,'').trim().slice(0,12)||'Driver';
+async function tgUpdate(u){
+  if(u.message&&typeof u.message.text==='string'){
+    const m=u.message,tok=(m.text.match(/^\/start\s+([a-f0-9]{16})$/)||[])[1],p=tok&&tgPend.get(tok);
+    if(!p||p.exp<Date.now())return tgCall('sendMessage',{chat_id:m.chat.id,text:'City Drive: open the game, press "Log in with Telegram" and scan the QR code.'});
+    return tgCall('sendMessage',{chat_id:m.chat.id,text:'Log in to City Drive as "'+tgName(m.from)+'"?',reply_markup:{inline_keyboard:[[{text:'✅ Approve',callback_data:'ok:'+tok},{text:'✖ Cancel',callback_data:'no:'+tok}]]}});
+  }
+  if(u.callback_query){
+    const q=u.callback_query,mm=String(q.data||'').match(/^(ok|no):([a-f0-9]{16})$/),p=mm&&tgPend.get(mm[2]);let txt='This login request has expired.';
+    if(p&&p.exp>Date.now()&&!p.done){
+      if(mm[1]==='ok'){const name=tgName(q.from);p.done={name,s:tgSign({id:q.from.id,name,exp:Date.now()+30*864e5})};txt='✅ Logged in as "'+name+'". Go back to the game.';}
+      else{tgPend.delete(mm[2]);txt='✖ Login cancelled.';}
+    }
+    tgCall('answerCallbackQuery',{callback_query_id:q.id}).catch(()=>{});
+    if(q.message)return tgCall('editMessageText',{chat_id:q.message.chat.id,message_id:q.message.message_id,text:txt});
+  }
+}
+async function tgLoop(){
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));let off=0;
+  for(;;){try{const me=await tgCall('getMe');TG_BOT=me.username;await tgCall('deleteWebhook',{});break;}catch(e){console.log('Telegram: '+e.message);await sleep(15000);}}
+  console.log('Telegram login on: @'+TG_BOT);
+  for(;;){try{const us=await tgCall('getUpdates',{offset:off,timeout:25,allowed_updates:['message','callback_query']});
+    for(const u of us){off=u.update_id+1;tgUpdate(u).catch(()=>{});}}catch(e){await sleep(3000);}}
+}
+if(TG_TOKEN)tgLoop();
+setInterval(()=>{const n=Date.now();for(const[k,v]of tgPend)if(v.exp<n)tgPend.delete(k);},60000);
+function tgHttp(req,res){
+  const out=o=>{res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(o));};
+  if(req.url.startsWith('/tg/info'))return out({on:!!(TG_TOKEN&&TG_BOT),bot:TG_BOT});
+  let b='';req.on('data',c=>{b+=c;if(b.length>4000)req.destroy();});
+  req.on('end',()=>{let m={};try{m=JSON.parse(b||'{}');}catch(e){}
+    if(!(TG_TOKEN&&TG_BOT))return out({ok:false});
+    if(req.url.startsWith('/tg/new')){if(tgPend.size>5000)return out({ok:false});const t=crypto.randomBytes(8).toString('hex');tgPend.set(t,{exp:Date.now()+5*60000,done:null});return out({ok:true,token:t,url:'https://t.me/'+TG_BOT+'?start='+t});}
+    if(req.url.startsWith('/tg/poll')){const p=tgPend.get(String(m.token||''));if(!p)return out({ok:false,gone:true});if(!p.done)return out({ok:false});tgPend.delete(m.token);return out({ok:true,name:p.done.name,s:p.done.s});}
+    if(req.url.startsWith('/tg/me')){const o=tgVerify(m.s);return out(o?{ok:true,name:o.name}:{ok:false});}
+    out({ok:false});});
+}
+
 const server=http.createServer((req,res)=>{
   if(req.url.startsWith('/health')){res.end('ok');return;}
+  if(req.url.startsWith('/tg/'))return tgHttp(req,res);
   fs.readFile(path.join(__dirname,'public','index.html'),(e,d)=>{
     if(e){res.writeHead(404);res.end('Put the game file at public/index.html');return;}
     res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache'});res.end(d);
@@ -37,7 +94,8 @@ wss.on('connection',ws=>{
       leave(ws);join(ws,c,false);
     }
     else if(m.t==='map'&&ws.room){const r=rooms.get(ws.room);if(r&&r.owner===ws.id){r.map=m.map||null;r.demo=!!m.demo;}}
-    else if(m.t==='s'&&ws.room){const r=rooms.get(ws.room);if(r){m.id=ws.id;bcast(r,m,ws);}}
+    else if(m.t==='tgauth'){const o=tgVerify(m.s);ws.tg=o?o.name:null;}
+    else if(m.t==='s'&&ws.room){const r=rooms.get(ws.room);if(r){m.id=ws.id;if(ws.tg){m.tv=1;if('n' in m)m.n=ws.tg;}else delete m.tv;bcast(r,m,ws);}}
   });
   ws.on('close',()=>leave(ws));ws.on('error',()=>{});
 });
