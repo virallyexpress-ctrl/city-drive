@@ -131,6 +131,14 @@ canvas#game{touch-action:none;position:fixed;left:0;top:0;width:100%;height:100%
 
 #dgr{position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0}
 #dgrt{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:6;pointer-events:none;opacity:0;color:#fff;background:rgba(200,0,0,.75);font-weight:900;letter-spacing:2px;font-size:13px;padding:2px 14px;border-radius:999px;text-shadow:0 1px 3px #000}
+
+/* v0.37 phone layout: joystick on the left; right side = gas above one brake / handbrake / reverse button */
+#joy{position:fixed;z-index:5;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:clamp(120px,30vmin,170px);height:clamp(120px,30vmin,170px);border-radius:50%;background:radial-gradient(circle,rgba(40,48,60,.5) 0 55%,rgba(25,30,38,.45) 56% 100%);border:2px solid rgba(255,255,255,.4);backdrop-filter:blur(3px);touch-action:none;user-select:none;-webkit-user-select:none}
+#joy::before{content:'◀      ▶';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:rgba(255,255,255,.45);font-size:15px;white-space:pre}
+#joyk{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;border-radius:50%;background:rgba(255,255,255,.55);border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);pointer-events:none}
+#joy.act #joyk{background:rgba(255,213,74,.9);border-color:#ffd54a}
+#tbrk{right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));width:clamp(92px,21vmin,124px);height:clamp(76px,17vmin,100px);font-size:12px}
+#tgas{right:max(14px,env(safe-area-inset-right));bottom:calc(max(14px,env(safe-area-inset-bottom)) + clamp(76px,17vmin,100px) + 14px);width:clamp(92px,21vmin,124px);height:clamp(100px,24vmin,134px);font-size:15px}
 </style>
 </head>
 <body>
@@ -3177,9 +3185,9 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>{keys[e.code]=0;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=0;});
 function inp(){
-  const dn=keys['ArrowDown']||keys['KeyS']||tk.down,up=keys['ArrowUp']||keys['KeyW']||tk.up||(CTL==='auto'&&!dn&&mode==='game');
+  const tbk=!!tk.down&&mode==='game',fvT=player.vx*Math.sin(player.a)-player.vy*Math.cos(player.a),tbHB=tbk&&fvT>TBRK,dn=keys['ArrowDown']||keys['KeyS']||tbk,up=keys['ArrowUp']||keys['KeyW']||tk.up||(CTL==='auto'&&!dn&&mode==='game');
   const lf=keys['ArrowLeft']||keys['KeyA']||tk.left,rt=keys['ArrowRight']||keys['KeyD']||tk.right;
-  player.th=(up?1:0)-(dn?1:0);player.steer=clamp((rt?1:0)-(lf?1:0)+(tk.sa||0),-1,1);player.hb=(keys['Space']||tk.hb)?1:0;
+  player.th=(up?1:0)-(dn?1:0);player.steer=clamp((rt?1:0)-(lf?1:0)+(tk.sa||0),-1,1);player.hb=(keys['Space']||tk.hb||tbHB)?1:0;
 }
 document.querySelectorAll('.tb,.pd').forEach(b=>{
   const k=b.dataset.k;
@@ -4659,21 +4667,32 @@ function policeFX(dt){
 
 /* touch control schemes: arrows / arrows+auto gas / tilt / wheel */
 let CTL='arrows',TILTINV=1;try{CTL=localStorage.getItem('cd:ctl')||'arrows';TILTINV=+(localStorage.getItem('cd:tinv')||1);}catch(_){}
-const CTLS=[['arrows','Arrows'],['auto','Arrows + auto gas'],['tilt','Tilt phone'],['wheel','Steering wheel']];
-if(!CTLS.some(c=>c[0]===CTL))CTL='arrows';
+const TBRK=45;   /* touch brake: above this forward speed it is a handbrake stop, below it the same button reverses */
+const CTLS=[['joy','Joystick'],['auto','Joystick + auto gas'],['tilt','Tilt phone'],['wheel','Steering wheel']];
+if(CTL==='arrows')CTL='joy';
+if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 {
  const mk=(id,k,txt)=>{const b=document.createElement('div');b.className='pd';b.id=id;b.dataset.k=k;b.textContent=txt;$('touch').appendChild(b);
   const on=e=>{e.preventDefault();tk[k]=1;b.classList.add('act');try{b.setPointerCapture(e.pointerId);}catch(_){}};
   const off=e=>{e.preventDefault();tk[k]=0;b.classList.remove('act');};
   b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);b.addEventListener('contextmenu',e=>e.preventDefault());};
- mk('tleft','left','◀');mk('tright','right','▶');
+ /* left-hand joystick: horizontal = steering (analog), vertical only moves the knob */
+ const jb=document.createElement('div');jb.id='joy';jb.innerHTML='<div id="joyk"></div>';$('touch').appendChild(jb);
+ {let act=null;const kn=jb.firstChild;
+  const mv=e=>{const r=jb.getBoundingClientRect(),R=r.width/2,cx=r.left+R,cy=r.top+R;let dx=e.clientX-cx,dy=e.clientY-cy;const L=Math.hypot(dx,dy);if(L>R){dx*=R/L;dy*=R/L;}
+   kn.style.transform='translate('+dx+'px,'+dy+'px)';const n=dx/R;tk.sa=Math.abs(n)<0.12?0:clamp((n-Math.sign(n)*0.12)/0.78,-1,1);};
+  const on=e=>{e.preventDefault();act=e.pointerId;jb.classList.add('act');try{jb.setPointerCapture(e.pointerId);}catch(_){}mv(e);};
+  const off=e=>{if(e.pointerId!==act)return;act=null;tk.sa=0;kn.style.transform='translate(0,0)';jb.classList.remove('act');};
+  jb.addEventListener('pointerdown',on);jb.addEventListener('pointermove',e=>{if(e.pointerId===act)mv(e);});jb.addEventListener('pointerup',off);jb.addEventListener('pointercancel',off);jb.addEventListener('lostpointercapture',off);jb.addEventListener('contextmenu',e=>e.preventDefault());}
+ {const bb=$('tbrk');bb.innerHTML='🛑<br>BRAKE<br>↺ REVERSE';}
+
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.36 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.37 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
-  const arr=CTL==='arrows'||CTL==='auto';
+  const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
-  $('tleft').style.display=$('tright').style.display=arr?'flex':'none';
+  $('joy').style.display=arr?'block':'none';$('thb').style.display='none';
   $('tgas').style.display=CTL==='auto'?'none':'';
   ib.style.display=CTL==='tilt'&&mode==='game'&&isTouch?'block':'none';
   tk.sa=0;tk.left=0;tk.right=0;
