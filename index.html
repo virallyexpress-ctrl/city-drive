@@ -109,11 +109,7 @@ canvas#game{touch-action:none;position:fixed;left:0;top:0;width:100%;height:100%
 #tsir{right:max(14px,env(safe-area-inset-right));bottom:calc(max(14px,env(safe-area-inset-bottom)) + clamp(100px,24vmin,132px) + 66px);width:clamp(62px,13vmin,84px);height:36px;font-size:16px}
 #tsw{right:172px!important;top:10px!important}#mute{right:218px!important;top:10px!important}
 
-#policefx{position:fixed;inset:0;pointer-events:none;display:none;z-index:3}
-#policefx i{position:absolute;top:0;bottom:0;width:70px;opacity:0;will-change:opacity}
-#policefx .pfr{left:0;background:linear-gradient(90deg,rgba(255,30,30,.6),rgba(255,30,30,0));animation:pfa .6s steps(1) infinite}
-#policefx .pfb{right:0;background:linear-gradient(270deg,rgba(40,70,255,.6),rgba(40,70,255,0));animation:pfb .6s steps(1) infinite}
-@keyframes pfa{0%{opacity:1}50%{opacity:0}}@keyframes pfb{0%{opacity:0}50%{opacity:1}}
+#policefx{position:fixed;inset:0;pointer-events:none;display:none;z-index:3;animation:pf .55s steps(1) infinite}
 @keyframes pf{0%{box-shadow:inset 110px 0 130px -50px rgba(255,30,30,.9),inset -110px 0 130px -50px rgba(30,60,255,0)}50%{box-shadow:inset 110px 0 130px -50px rgba(255,30,30,0),inset -110px 0 130px -50px rgba(30,60,255,.9)}}
 #pa{position:fixed;left:50%;top:46px;transform:translateX(-50%);display:none;z-index:5;pointer-events:none;max-width:60vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;font-weight:800;letter-spacing:.5px;font-size:13px;line-height:20px;color:#fff;background:rgba(0,0,0,.45);padding:0 12px;border-radius:999px;border-left:4px solid #ff3b30;border-right:4px solid #3b6bff;text-shadow:0 1px 4px #000}
 #pa.hot{animation:pah .3s steps(1) infinite}
@@ -135,81 +131,13 @@ canvas#game{touch-action:none;position:fixed;left:0;top:0;width:100%;height:100%
 
 #dgr{position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0}
 #dgrt{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:6;pointer-events:none;opacity:0;color:#fff;background:rgba(200,0,0,.75);font-weight:900;letter-spacing:2px;font-size:13px;padding:2px 14px;border-radius:999px;text-shadow:0 1px 3px #000}
-
-/* v0.37 phone layout: joystick on the left; right side = gas above one brake / handbrake / reverse button */
-#joy{position:fixed;z-index:5;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:clamp(120px,30vmin,170px);height:clamp(120px,30vmin,170px);border-radius:50%;background:radial-gradient(circle,rgba(40,48,60,.5) 0 55%,rgba(25,30,38,.45) 56% 100%);border:2px solid rgba(255,255,255,.4);backdrop-filter:blur(3px);touch-action:none;user-select:none;-webkit-user-select:none}
-#joy::before{content:'◀      ▶';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:rgba(255,255,255,.45);font-size:15px;white-space:pre}
-#joyk{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;border-radius:50%;background:rgba(255,255,255,.55);border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);pointer-events:none}
-#joy.act #joyk{background:rgba(255,213,74,.9);border-color:#ffd54a}
-#tbrk{right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));width:clamp(92px,21vmin,124px);height:clamp(76px,17vmin,100px);font-size:12px}
-#tgas{right:max(14px,env(safe-area-inset-right));bottom:calc(max(14px,env(safe-area-inset-bottom)) + clamp(76px,17vmin,100px) + 14px);width:clamp(92px,21vmin,124px);height:clamp(100px,24vmin,134px);font-size:15px}
-
-/* horn + siren sit above the gas pedal, same width as the gas / brake buttons */
-#thorn{right:max(14px,env(safe-area-inset-right));bottom:calc(max(14px,env(safe-area-inset-bottom)) + clamp(76px,17vmin,100px) + clamp(100px,24vmin,134px) + 28px);width:clamp(92px,21vmin,124px);height:42px;font-size:12px}
-#tsir{right:max(14px,env(safe-area-inset-right));bottom:calc(max(14px,env(safe-area-inset-bottom)) + clamp(76px,17vmin,100px) + clamp(100px,24vmin,134px) + 28px + 42px + 10px);width:clamp(92px,21vmin,124px);height:40px;font-size:16px}
-/* short landscape screens: the minimap sits top-right, so horn + siren go beside the gas pedal instead of above it */
-@media (max-height:520px){
- #thorn,#tsir{right:calc(max(14px,env(safe-area-inset-right)) + clamp(92px,21vmin,124px) + 12px);width:clamp(74px,17vmin,98px)}
- #thorn{bottom:calc(max(14px,env(safe-area-inset-bottom)) + clamp(76px,17vmin,100px) + 14px);height:44px}
- #tsir{bottom:calc(max(14px,env(safe-area-inset-bottom)) + clamp(76px,17vmin,100px) + 14px + 44px + 10px);height:42px}
-}
-
-/* minimap scales with the screen: small on phones, bigger on desktops */
-#mini{width:var(--mw)!important;height:var(--mw)!important}
-#mapDef{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);color:#ffd54a;border-radius:8px;font-size:18px;line-height:1;padding:3px 8px;cursor:pointer}#mapDef.on{background:rgba(255,213,74,.25);border-color:#ffd54a}
-
-/* danger glow: four static edge gradients, only their opacity animates */
-#dgr{background:none}#dgr i{position:absolute;opacity:0;will-change:opacity}
-#dgr .dgl{left:0;top:0;bottom:0;width:170px;background:linear-gradient(90deg,rgba(255,20,20,.85),rgba(255,20,20,0))}
-#dgr .dgr{right:0;top:0;bottom:0;width:170px;background:linear-gradient(270deg,rgba(255,20,20,.85),rgba(255,20,20,0))}
-#dgr .dgt{left:0;right:0;top:0;height:170px;background:linear-gradient(180deg,rgba(255,20,20,.85),rgba(255,20,20,0))}
-#dgr .dgb{left:0;right:0;bottom:0;height:170px;background:linear-gradient(0deg,rgba(255,20,20,.85),rgba(255,20,20,0))}
-/* blur behind the touch buttons is costly on tablets: use a plain tint instead */
-.pd,#joy{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-#pausebox{backdrop-filter:none!important}
-/* top-row buttons follow the minimap width */
-:root{--mw:clamp(96px,24vmin,260px)}
-#tsw{right:calc(var(--mw) + 22px)!important}#mute{right:calc(var(--mw) + 68px)!important}
-#inbox,#tctl,#tinv{right:calc(var(--mw) + 114px)!important}#inarrow{right:calc(var(--mw) + 86px)!important}
-.pbx .pgl{display:block;width:100%;margin-top:8px}
-:root{--tb:12.5vh}
-#topbar{position:fixed;left:0;top:0;right:0;height:var(--tb);z-index:6;display:none;box-sizing:border-box;padding:3px 8px;gap:8px;align-items:center;grid-template-columns:auto 1fr auto auto;background:var(--tbskin,linear-gradient(#10141a,#1c232d));background-size:100% 100%;border-bottom:2px solid rgba(255,213,74,.6);color:#fff;overflow:hidden;direction:ltr}
-#topbar #hud{position:static!important;display:grid!important;grid-template-columns:auto auto;column-gap:8px;align-items:center;text-shadow:none;pointer-events:none}
-#topbar #hud .spd{grid-row:1/span 4;font-size:calc(var(--tb)*.5);text-align:center}
-#topbar #hud .spd small{display:block;margin:0;font-size:max(9px,calc(var(--tb)*.11));white-space:nowrap}
-#topbar #carname{margin:0;font-size:max(10px,calc(var(--tb)*.13));white-space:nowrap;max-width:9em;overflow:hidden;text-overflow:ellipsis}
-#topbar #stars{font-size:max(12px,calc(var(--tb)*.2))!important;margin:0!important;line-height:1;letter-spacing:1px!important}
-#topbar #hud>div:has(#hpbar){width:calc(var(--tb)*1.1)!important;min-width:64px;height:max(6px,calc(var(--tb)*.09))!important;margin:0!important}
-#topbar #hptxt{font-size:max(9px,calc(var(--tb)*.1))!important;white-space:nowrap}
-#tbC{min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;overflow:hidden;font-size:max(10px,calc(var(--tb)*.13));font-weight:700}
-#topbar #roombar{position:static!important;transform:none!important;background:none;border:0;padding:0;font-size:inherit;gap:6px;max-width:none;flex-wrap:wrap;justify-content:center}
-#topbar #roombar button{padding:.3em .75em;font-size:inherit;white-space:nowrap}
-#topbar #racehud{position:static!important;transform:none!important;background:none;border:0;padding:0;font-size:inherit;color:#ffd54a;white-space:normal}
-body.racing #roomtxt,body.racing #invite{display:none}
-#topbar #hudcol{display:flex;gap:4px;align-items:center}
-#topbar #hudcol>*{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;margin:0!important;transform:none!important;width:calc(var(--tb)*.42);height:calc(var(--tb)*.42);min-width:30px;min-height:30px;padding:0!important;box-sizing:border-box;font-size:max(15px,calc(var(--tb)*.2))!important;line-height:1;text-align:center;max-width:none!important}
-#topbar .cl{display:none}
-#topbar #mini{position:static!important;width:calc(var(--tb) - 10px)!important;height:calc(var(--tb) - 10px)!important;box-shadow:none;border-width:1px}
-#hint{position:fixed;left:10px;top:calc(var(--tb) + 8px);z-index:5;font-size:12px;opacity:.7;line-height:1.6;background:rgba(0,0,0,.35);padding:6px 10px;border-radius:8px;pointer-events:none}
-#pa{top:calc(var(--tb) + 6px)!important}#dgrt{top:calc(var(--tb) + 32px)!important}
-#inboxp{top:calc(var(--tb) + 6px)!important;right:10px!important}
-#inarrow{top:calc(var(--tb) + 6px)!important;right:10px!important}#inarrow:before{display:none}
-@media (max-height:520px){#topbar #hptxt{display:none}}
-@media (orientation:portrait) and (max-width:820px){
-#hint{display:none!important}
-#topbar{grid-template-columns:auto 1fr auto;grid-template-rows:auto 1fr;grid-template-areas:"hud c mini" "ic ic mini";row-gap:2px;padding:3px 6px}
-#topbar #hud{grid-area:hud}#tbC{grid-area:c}#topbar #hudcol{grid-area:ic}#topbar #mini{grid-area:mini}
-#topbar #hud .spd{font-size:calc(var(--tb)*.34)}
-.cl2{display:none}#topbar #hud>div:has(#hpbar){width:calc(var(--tb)*.75)!important}#topbar #hud{column-gap:6px}#tbC{font-size:12px}#topbar #racehud{font-size:11px;text-align:center}
-#topbar #hudcol>*{width:calc(var(--tb)*.36);height:calc(var(--tb)*.36)}
-}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas>
 <canvas id="mini" width="150" height="150"></canvas>
 <div id="hud"><div class="spd"><span id="spd">0</span><small>km/h · limit 100</small></div><div class="car" id="carname"></div><div id="stars" style="font-size:26px;letter-spacing:3px;color:rgba(255,255,255,.4);margin-top:2px">☆☆☆</div><div style="width:150px;height:12px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.5);border-radius:7px;overflow:hidden;margin-top:4px"><div id="hpbar" style="height:100%;width:100%;background:#4cd964"></div></div><div id="hptxt" style="font-size:12px;opacity:.9">Health 100%</div><div class="hint" id="hint">Arrows / WASD – drive<br>Space – handbrake (drift)<br>H – horn &nbsp;·&nbsp; E – siren<br>C – switch car &nbsp;·&nbsp; R – back to road<br>M – mute · <span id="hint2"></span><br>Drive slowly into a REPAIR lot to fix your car<br>Over 100 km/h – the police will chase you 😉</div></div>
-<div id="toast"></div><div id="roombar"><span id="roomtxt"></span><button id="invite"><span class="cl2">Invite / </span>QR</button><button id="raceBtn">🏁<span class="cl2"> Race</span></button></div><div id="policefx"></div><div id="pa"></div><div id="bust"><div id="bustnum"></div><div id="bustbar"><i></i></div></div>
+<div id="toast"></div><div id="roombar"><span id="roomtxt"></span><button id="invite">Invite / QR</button></div><div id="policefx"></div><div id="pa"></div><div id="bust"><div id="bustnum"></div><div id="bustbar"><i></i></div></div>
 <div id="ed">
  <div id="edtop"><button id="e_menu">☰ Menu</button><span class="sep"></span><span id="edtools"></span><span class="sep"></span><button id="e_er" title="Erase mode: the current tool deletes instead of drawing (desktop: right mouse button or hold X)">🧽 Erase</button><button id="e_undo" title="Ctrl+Z">↶</button><button id="e_redo" title="Ctrl+Y">↷</button><button id="e_grid" class="on" title="G">Grid</button><button id="e_snap" title="Snap to grid">Snap 16</button><button id="e_fit" title="Home">Fit</button><span class="sep"></span><button id="e_files">💾 Files</button><button id="e_import">🖼 Import</button><button id="e_test" class="go">▶ Test drive</button></div>
  <div id="edleft">
@@ -255,7 +183,7 @@ body.racing #roomtxt,body.racing #invite{display:none}
   <h1>City Drive</h1>
   <p>Pick a car, pick a map – or build your own map in the editor</p>
   <div id="cards"></div>
-  <div id="mapsel">Map: <select id="mapSel"></select><button id="mapDef" type="button">☆</button></div>
+  <div id="mapsel">Map: <select id="mapSel"></select></div>
   <button id="go">Start driving ▶</button>
   <button id="edbtn">✎ Map Editor</button>
   <div id="mp"><b>Multiplayer</b><input id="mpName" placeholder="Your name" maxlength="12"><button id="mpCreate">Create room</button><input id="mpCode" placeholder="CODE" maxlength="4"><button id="mpJoin">Join</button></div>
@@ -2569,7 +2497,7 @@ const DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
 const $=id=>document.getElementById(id);
 const cv=$('game'),ctx=cv.getContext('2d'),mini=$('mini'),mctx=mini.getContext('2d');
 let W=0,H=0,dpr=1;
-function resize(){dpr=Math.min(window.devicePixelRatio||1,2)*(window.QSV||1);W=cv.width=Math.floor(innerWidth*dpr);H=cv.height=Math.floor(innerHeight*dpr);}
+function resize(){dpr=Math.min(window.devicePixelRatio||1,2);W=cv.width=Math.floor(innerWidth*dpr);H=cv.height=Math.floor(innerHeight*dpr);}
 addEventListener('resize',resize);resize();
 
 /* ---------- sprites ---------- */
@@ -2872,42 +2800,26 @@ function aiHonk(v,long){
   if(!AC||muted||mode!=='game'||AC.state!=='running')return;
   const d=Math.hypot(v.x-player.x,v.y-player.y),vol=0.06*clamp(1-d/1000,0,1);if(vol<0.003)return;
   const t=AC.currentTime,o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),dur=long?0.5:0.3;
-  const pm=0.9+Math.random()*0.25;o.type=o2.type='square';o.frequency.value=(long?420:360)*pm;o2.frequency.value=(long?530:450)*pm;
+  o.type=o2.type='square';o.frequency.value=long?420:360;o2.frequency.value=long?530:450;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.015);g.gain.setValueAtTime(vol,t+dur-0.04);g.gain.linearRampToValueAtTime(0,t+dur);
   o.connect(g);o2.connect(g);g.connect(AC.destination);o.start(t);o2.start(t);o.stop(t+dur+0.02);o2.stop(t+dur+0.02);
 }
 /* returns a target-speed override or null. stages: 1 = flash high beams (3 s), 2 = honk + flash + creep closer (6 s), 3 = ram it out of the way, honking (10 s) */
 function impatience(v,ai,blk,gap,fv,dt){
   if(ai.chase||ai.cop){v.hbOn=0;return null;}
-  const K=window.IMPS||1,im=ai.imp||(ai.imp={t:0,o:null,st:0,hn:0,ram:0,hs:null,fn:0,fo:0,bu:0});
+  const K=window.IMPS||1,im=ai.imp||(ai.imp={t:0,o:null,st:0,hn:0,ram:0});
   const still=blk&&Math.hypot(blk.vx||0,blk.vy||0)<14&&Math.abs(fv)<14&&gap<70;
-  if(still){if(im.o!==blk){im.o=blk;im.t=0;im.ram=0;im.hs=null;}im.t+=dt;}
-  else{im.t=Math.max(0,im.t-dt*2);if(im.t<=0){im.o=null;im.hs=null;}}
+  if(still){if(im.o!==blk){im.o=blk;im.t=0;im.ram=0;}im.t+=dt;}
+  else{im.t=Math.max(0,im.t-dt*2);if(im.t<=0)im.o=null;}
   if(im.ram>0)im.ram-=dt;
-  /* whole sequence = 10 s: 0.8 s lights + up to 4 random honks, 5 s insult + creeping, 10 s ram */
-  let st=im.t>=10*K?3:im.t>=5*K?2:im.t>=0.8*K?1:0;
+  let st=im.t>=10*K?3:im.t>=6*K?2:im.t>=3*K?1:0;
   if(st===3)im.ram=Math.max(im.ram,5);
   if(im.ram>0)st=3;
   if(st>=2&&st!==im.sy){im.sy=st;carSay(v,st===3);}
-  if(st===0){im.sy=0;im.fo=0;}
+  if(st===0)im.sy=0;
   im.st=st;
-  /* headlight play: random on/off lengths, now and then a quick flutter burst, so it never looks like a fixed pattern */
-  if(st>=1){
-    im.fn-=dt;
-    if(im.fn<=0){
-      if(im.bu>0){im.fo=im.fo?0:1;im.fn=0.05+Math.random()*0.07;im.bu--;}
-      else if(Math.random()<0.28){im.bu=3+Math.floor(Math.random()*4);im.fo=1;im.fn=0.05+Math.random()*0.07;}
-      else{im.fo=im.fo?0:1;im.fn=im.fo?0.1+Math.random()*0.35:0.12+Math.random()*0.7;}
-    }
-  }
-  v.hbOn=st>=1?im.fo:0;
-  /* honks: a random opening round of 1-4 with uneven gaps, then sparser random ones, and frantic ones when ramming */
-  if(st>=1&&!im.hs){const n=1+Math.floor(Math.random()*4);let tt=0.8*K+Math.random()*0.5;im.hs=[];for(let i=0;i<n;i++){im.hs.push(tt);tt+=0.35+Math.random()*1.0;}}
-  if(st>=1&&st<3){
-    if(im.hs.length&&im.t>=im.hs[0]){im.hs.shift();aiHonk(v,Math.random()<0.3);}
-    else if(!im.hs.length&&st>=2){im.hn-=dt;if(im.hn<=0){aiHonk(v,Math.random()<0.4);im.hn=0.6+Math.random()*1.4;}}
-  }
-  if(st===3){im.hn-=dt;if(im.hn<=0){aiHonk(v,true);im.hn=0.22+Math.random()*0.3;}}
+  v.hbOn=(st>=1&&Math.floor(performance.now()/220)%2)?1:0;
+  if(st>=2){im.hn-=dt;if(im.hn<=0){aiHonk(v,st===3);im.hn=st===3?0.35:1.1;}}
   if(st===3)return Math.min(ai.cruise,230);
   if(st===2&&blk===im.o)return gap>5?70:30;
   return null;
@@ -2982,7 +2894,7 @@ function expressTick(dt){
 /* red proximity warning: screen edge glows on the side of the nearest lethal zone (kill / cliff / 'fall' map edge) */
 const DGR=260;let dgT=0;
 function dangerTick(dt){
-  const el=document.getElementById('dgr'),tx=document.getElementById('dgrt');if(!el||!el._s)return;
+  const el=document.getElementById('dgr'),tx=document.getElementById('dgrt');if(!el)return;
   const p=player;let best=1e9,ux=0,uy=0;
   if(p&&p.act&&!(p.air>0)&&!p.roof&&!p.wreck){
     for(const z of MAP.zones){if(z.t!=='kill'&&z.t!=='cliff')continue;
@@ -2990,11 +2902,11 @@ function dangerTick(dt){
       if(d<best){best=d;ux=cx-p.x;uy=cy-p.y;}}
     if(MAP.edge==='fall'){const c=[[p.x,-1,0],[WW-p.x,1,0],[p.y,0,-1],[WH-p.y,0,1]];for(const q of c)if(q[0]<best){best=Math.max(0,q[0]);ux=q[1];uy=q[2];}}
   }
-  if(best>=DGR){if(el._on){el._on=0;for(const s of el._s)s.style.opacity=0;tx.style.opacity=0;}return;}
-  el._on=1;dgT+=dt;const k=1-best/DGR,pulse=0.65+0.35*Math.sin(dgT*(6+14*k)),L=Math.hypot(ux,uy)||1;ux/=L;uy/=L;
-  /* only opacity changes per frame (cheap): each edge glows in proportion to how much the danger lies that way */
-  const w=[Math.max(0,-ux),Math.max(0,ux),Math.max(0,-uy),Math.max(0,uy)];
-  for(let i=0;i<4;i++)el._s[i].style.opacity=(clamp(w[i]*1.1+0.12,0,1)*Math.min(1,k*1.7)*pulse).toFixed(2);
+  if(best>=DGR){el.style.opacity=0;tx.style.opacity=0;return;}
+  dgT+=dt;const k=1-best/DGR,pulse=0.65+0.35*Math.sin(dgT*(6+14*k)),L=Math.hypot(ux,uy)||1;ux/=L;uy/=L;
+  const S=Math.round(70+60*k);
+  el.style.boxShadow='inset '+Math.round(-ux*S*0.55)+'px '+Math.round(-uy*S*0.55)+'px '+Math.round(80+70*k)+'px '+Math.round(10+40*k)+'px rgba(255,20,20,'+(0.85*k).toFixed(2)+')';
+  el.style.opacity=(pulse).toFixed(2);
   tx.style.opacity=k>0.45?pulse.toFixed(2):0;
 }
 function hazardTick(dt){
@@ -3021,7 +2933,7 @@ function hazardTick(dt){
     setWanted(0);window.__copLost=0;toast('🏁 All units are out – you are free!');
   }
 }
-{const e=document.createElement('div');e.id='elim';document.body.appendChild(e);const d=document.createElement('div');d.id='dgr';d._s=['l','r','t','b'].map(c=>{const s=document.createElement('i');s.className='dg'+c;d.appendChild(s);return s;});document.body.appendChild(d);const t=document.createElement('div');t.id='dgrt';t.textContent='⚠ DANGER ⚠';document.body.appendChild(t);}
+{const e=document.createElement('div');e.id='elim';document.body.appendChild(e);const d=document.createElement('div');d.id='dgr';document.body.appendChild(d);const t=document.createElement('div');t.id='dgrt';t.textContent='⚠ DANGER ⚠';document.body.appendChild(t);}
 
 /* emergency stations: police go home after a chase; ambulance / fire truck respond to wrecks and return */
 const STN={pstation:['Police station','🚓','#2b4c8c'],astation:['Ambulance station','🚑','#c24b4b'],fstation:['Fire station','🚒','#d1741f']};
@@ -3265,9 +3177,9 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>{keys[e.code]=0;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=0;});
 function inp(){
-  const TDc=touchDrive(),tbk=TDc.dn,tbHB=TDc.hb,dn=keys['ArrowDown']||keys['KeyS']||tbk,up=keys['ArrowUp']||keys['KeyW']||tk.up||(CTL==='auto'&&!dn&&mode==='game');
+  const dn=keys['ArrowDown']||keys['KeyS']||tk.down,up=keys['ArrowUp']||keys['KeyW']||tk.up||(CTL==='auto'&&!dn&&mode==='game');
   const lf=keys['ArrowLeft']||keys['KeyA']||tk.left,rt=keys['ArrowRight']||keys['KeyD']||tk.right;
-  player.th=(up?1:0)-(dn?1:0);player.steer=clamp((rt?1:0)-(lf?1:0)+(tk.sa||0)+joySteer(),-1,1);player.hb=(keys['Space']||tk.hb||tbHB)?1:0;
+  player.th=(up?1:0)-(dn?1:0);player.steer=clamp((rt?1:0)-(lf?1:0)+(tk.sa||0),-1,1);player.hb=(keys['Space']||tk.hb)?1:0;
 }
 document.querySelectorAll('.tb,.pd').forEach(b=>{
   const k=b.dataset.k;
@@ -3296,11 +3208,7 @@ VEH.forEach((d,i)=>{
 function renderSel(){[...cardsEl.children].forEach((c,i)=>c.classList.toggle('sel',i===selIdx));}
 renderSel();
 function listMaps(){const out=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('cdmap:'))out.push(k.slice(6));}}catch(e){}return out.sort();}
-const getDefMap=()=>{try{return localStorage.getItem('cd:defmap')||'';}catch(e){return '';}};
-function fillMapSel(sel){const s=$('mapSel'),df=getDefMap(),cur=sel!==undefined?sel:(s.dataset.i?s.value:df);s.dataset.i=1;
-  s.innerHTML='<option value="">'+(df===''?'⭐ ':'')+'Demo city (3×3 blocks)</option>'+listMaps().map(n=>'<option value="'+esc(n)+'">'+(df===n?'⭐ ':'')+esc(n)+'</option>').join('');
-  s.value=[...s.options].some(o=>o.value===cur)?cur:'';markDefBtn();}
-function markDefBtn(){const b=$('mapDef');if(!b)return;const on=$('mapSel').value===getDefMap();b.textContent=on?'⭐':'☆';b.title=on?'This map opens first. Click to stop':'Make this map the one the game starts with';b.classList.toggle('on',on);}
+function fillMapSel(sel){const s=$('mapSel'),cur=sel!==undefined?sel:s.value;s.innerHTML='<option value="">Demo city (3×3 blocks)</option>'+listMaps().map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');s.value=[...s.options].some(o=>o.value===cur)?cur:'';}
 /* default demo city: a 3×3 map that shows off the newer features */
 function showcaseMap(){
   const m=genCity(3,0);m.name='Demo city';m.round=64;
@@ -3335,7 +3243,7 @@ addEventListener('blur',audioPause);addEventListener('focus',audioResume);addEve
 function showUI(){
   if(mode!=='game')silence();
   const g=mode==='game';if(typeof setPause==='function')setPause(false);
-  $('hud').style.display=g?'':'none';$('mini').style.display=g?'':'none';if($('topbar'))$('topbar').style.display=g?'grid':'none';$('mute').style.display=g?'':'none';
+  $('hud').style.display=g?'':'none';$('mini').style.display=g?'':'none';$('mute').style.display=g?'':'none';
   $('tsw').style.display=g&&isTouch?'block':'none';if($('tctl')){$('tctl').style.display=g&&isTouch?'block':'none';applyCtl();}$('touch').style.display=g?'':'none';
   $('menu').style.display=mode==='menu'?'flex':'none';$('ed').style.display=mode==='editor'?'block':'none';
   $('bust').style.display='none';$('policefx').style.display='none';$('pa').style.display='none';if(typeof updRoom==='function')updRoom();
@@ -3422,10 +3330,6 @@ function sirFreq(m,t){
   if(m===3)return Math.floor(t*6)%2?960:770;
   return 750+250*Math.sin(t*5.5);
 }
-
-/* default start map: the user's choice, remembered in this browser */
-$('mapDef').onclick=()=>{const v=$('mapSel').value,on=v===getDefMap();try{if(on&&v!==''){localStorage.setItem('cd:defmap','');toast('⭐ Default map: Demo city');}else{localStorage.setItem('cd:defmap',v);toast(v===''?'⭐ Default map: Demo city':'⭐ “'+v+'” will open first');}}catch(e){toast('Could not save the default');}fillMapSel(v);};
-$('mapSel').addEventListener('change',markDefBtn);
 
 const cam={x:0,y:0,z:1,shake:0};
 let PAR=1;
@@ -3699,14 +3603,8 @@ function drawVehicle(v,t){
   }
   ctx.restore();
 }
-/* graphics quality: render resolution scale (QSV). Auto only ever steps DOWN when frames are slow, and remembers it. */
-let GQ='auto';window.QSV=1;try{GQ=localStorage.getItem('cd:gq')||'auto';const q=+localStorage.getItem('cd:qs');window.QSV=GQ==='low'?0.6:GQ==='high'?1:(q>=0.5&&q<=1?q:1);}catch(_){}
-resize();
-let _pt=0,_pa=0,_pn=0;
-function perfTick(){const n=performance.now(),d=n-_pt;_pt=n;if(GQ!=='auto'||d>250||mode!=='game'||window.PAUSED){_pa=_pn=0;return;}_pa+=d;_pn++;
-  if(_pn>=90){const avg=_pa/_pn;_pa=_pn=0;if(avg>34&&window.QSV>0.5){window.QSV=Math.max(0.5,window.QSV*0.82);try{localStorage.setItem('cd:qs',String(window.QSV));}catch(_){}resize();toast('⚡ Graphics eased for smoother play');}}}
 function render(t,dt){
-  perfTick();if(typeof raceTick==='function')raceTick(t,dt);const p=player;PAR=1;
+  const p=player;PAR=1;
   const spd=Math.hypot(p.vx,p.vy),d=VEH[p.vi];
   const s0=Math.min(H/700,W/520),z=s0*(1-0.24*clamp(spd/d.max,0,1));
   cam.z+=(z-cam.z)*(1-Math.exp(-3*dt));
@@ -3722,7 +3620,7 @@ function render(t,dt){
   drawShadows(vx0,vy0,vx1,vy1);
   if(skids.length){ctx.strokeStyle='rgba(15,15,15,.32)';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();for(const k of skids){if(k[0]<vx0||k[0]>vx1||k[1]<vy0||k[1]>vy1)continue;ctx.moveTo(k[0],k[1]);ctx.lineTo(k[2],k[3]);}ctx.stroke();}
   for(const v of vehicles){if(v.roof||v.x<vx0-80||v.x>vx1+80||v.y<vy0-80||v.y>vy1+80)continue;drawVehicle(v,t);}
-  if(window.drawBubbles)drawBubbles(t);if(typeof raceDraw==='function')raceDraw(t);
+  if(window.drawBubbles)drawBubbles(t);
   for(const q of parts){
     const a=q.life/q.max;
     if(q.t==='s'){ctx.fillStyle=(q.dark?'rgba(35,35,35,':'rgba(225,225,225,')+(a*0.45)+')';ctx.beginPath();ctx.arc(q.x,q.y,q.r*(1+(1-a)*2.2),0,TAU);ctx.fill();}
@@ -3739,7 +3637,7 @@ function render(t,dt){
 }
 let miniK=1;
 function buildMini(){
-  const c=document.createElement('canvas');c.width=c.height=300;const g=c.getContext('2d');g.scale(2,2);   /* drawn at 2x so the map stays sharp when the minimap is scaled up on big screens */
+  const c=document.createElement('canvas');c.width=c.height=150;const g=c.getContext('2d');
   g.fillStyle='#14181c';g.fillRect(0,0,150,150);
   const k=miniK=150/Math.max(WW,WH);
   g.fillStyle=MAP.ground;g.fillRect(0,0,WW*k,WH*k);
@@ -3751,7 +3649,7 @@ function buildMini(){
   mini._bg=c;
 }
 function drawMini(){
-  const k=miniK;if(mini.width!==300){mini.width=mini.height=300;}mctx.setTransform(2,0,0,2,0,0);mctx.drawImage(mini._bg,0,0,150,150);
+  const k=miniK;mctx.drawImage(mini._bg,0,0);
   for(const v of vehicles){if(v===player||v.remote)continue;mctx.fillStyle='rgba(255,255,255,.85)';mctx.fillRect(v.x*k-1,v.y*k-1,2,2);}
   if(typeof chatMini==='function')chatMini(mctx,k);
   mctx.save();mctx.translate(player.x*k,player.y*k);mctx.rotate(player.a);mctx.fillStyle='#ffd54a';mctx.beginPath();mctx.moveTo(0,-6);mctx.lineTo(4,5);mctx.lineTo(-4,5);mctx.closePath();mctx.fill();mctx.strokeStyle='#000';mctx.lineWidth=1;mctx.stroke();mctx.restore();
@@ -4490,14 +4388,14 @@ function mpConnect(onopen){
   let ws,opened=false;
   try{ws=new WebSocket(mpUrl());}catch(e){toast('Multiplayer needs the server version of the game');return;}
   MP.ws=ws;
-  ws.onopen=()=>{opened=true;if(window.TGS)ws.send(JSON.stringify({t:'tgauth',s:window.TGS}));onopen();};
+  ws.onopen=()=>{opened=true;onopen();};
   ws.onmessage=ev=>{let m;try{m=JSON.parse(ev.data);}catch(e){return;}mpMsg(m);};
   ws.onerror=()=>{};
   ws.onclose=()=>{if(MP.ws!==ws)return;const had=!!MP.code;MP.ws=null;mpClear();toast(opened?(had?'Disconnected from the room':'Connection closed'):'Cannot reach the game server');};
 }
 function mpCreate(){
   if(mode!=='menu')return;
-  MP.demo=false;setMap(chosenMap());MP.creator=true;   /* always send the real map, so everyone sees the same city */
+  MP.demo=!$('mapSel').value;setMap(chosenMap());MP.creator=true;
   mpConnect(()=>MP.ws.send(JSON.stringify({t:'create'})));
 }
 function mpJoin(code){
@@ -4509,12 +4407,12 @@ function mpMsg(m){
   if(m.t==='room'){
     MP.code=m.code;MP.id=m.id;MP.n=m.n||1;
     if(MP.creator){enterGame(false);MP.ws.send(JSON.stringify(MP.demo?{t:'map',demo:1}:{t:'map',map:MAP}));}
-    else{setMap(m.demo?showcaseMap():m.map);enterGame(false);}
+    else{setMap(m.demo?genCity(20,0):m.map);enterGame(false);}
     updRoom();
     if(MP.creator)openInvite();
   }
   else if(m.t==='n'){MP.n=m.n;updRoom();}
-  else if(m.t==='s'){if(m.dm)chatRecv(m);else if(m.race)raceRecv(m.race,m.id);else mpState(m);}
+  else if(m.t==='s'){if(m.dm)chatRecv(m);else mpState(m);}
   else if(m.t==='left'){const r=MP.remotes.get(m.id);if(r){const i=vehicles.indexOf(r.v);if(i>=0)vehicles.splice(i,1);MP.remotes.delete(m.id);}}
   else if(m.t==='err'){toast(m.m);mpLeave();}
 }
@@ -4525,7 +4423,7 @@ function mpState(m){
     if(r){const i=vehicles.indexOf(r.v);if(i>=0)vehicles.splice(i,1);}
     const v=mk(m.vi,m.x,m.y,m.a,null);v.remote=true;v.rid=m.id;vehicles.push(v);r={v};MP.remotes.set(m.id,r);
   }
-  r.v.name=(m.tv?'✓ ':'')+String(m.n||'').slice(0,12);
+  r.v.name=String(m.n||'').slice(0,12);
   r.x=m.x;r.y=m.y;r.a=m.a;r.vx=m.vx;r.vy=m.vy;r.hp=m.hp;r.w=m.w;r.sr=m.sr;r.t=performance.now();
 }
 function mpTick(now,dt){
@@ -4545,7 +4443,7 @@ function mpSend(now){
 function updRoom(){
   const on=!!MP.code&&mode==='game';
   $('roombar').style.display=on?'flex':'none';
-  if(on)$('roomtxt').innerHTML='<span class="cl2">Room </span>'+esc(MP.code)+' · '+MP.n+'/10';
+  if(on)$('roomtxt').textContent='Room '+MP.code+' · '+MP.n+'/10 players';
 }
 function inviteLink(){
   let u=location.origin+location.pathname+'?room='+MP.code;
@@ -4640,7 +4538,7 @@ function chatDraw(){
   const th=CH.th.get(CH.open);if(!th)return;const box=$('cmsgs');box.innerHTML='';
   for(const m of th.msgs){
     const d=document.createElement('div');d.className='cm'+(m.me?' me':'');
-    if(m.k==='v'){const b=document.createElement('button');b.textContent='▶ voice message';b.onclick=()=>chatPlay(m.x);d.appendChild(b);}
+    if(m.k==='v'){const b=document.createElement('button');b.textContent='▶ voice message';b.onclick=()=>{try{new Audio(m.x).play();}catch(e){}};d.appendChild(b);}
     else d.textContent=m.x;
     box.appendChild(d);
   }
@@ -4660,46 +4558,18 @@ function renderInbox(){
     d.onclick=()=>chatOpen(o.id,o.name);p.appendChild(d);
   }
 }
-/* voice messages are recorded as plain 11 kHz mono WAV (not MediaRecorder), so a message from any phone plays on any computer */
 async function chatRecStart(){
   if(!CH.open||CH.rec)return;
   try{
-    const st=await navigator.mediaDevices.getUserMedia({audio:true});
-    const AC2=window.AudioContext||window.webkitAudioContext,ac=new AC2();if(ac.state==='suspended')ac.resume();
-    const src=ac.createMediaStreamSource(st),pr=ac.createScriptProcessor(4096,1,1),mute=ac.createGain(),chunks=[];mute.gain.value=0;
-    const rec={on:true,to:CH.open};CH.rec=rec;$('cmic').classList.add('rec');
-    pr.onaudioprocess=e=>{if(rec.on)chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));};
-    src.connect(pr);pr.connect(mute);mute.connect(ac.destination);
-    rec.stop=()=>{
-      if(!rec.on)return;rec.on=false;
-      try{src.disconnect();pr.disconnect();}catch(_){}st.getTracks().forEach(t=>t.stop());
-      const sr=ac.sampleRate;try{ac.close();}catch(_){}
-      CH.rec=null;$('cmic').classList.remove('rec');
-      let n=0;for(const c of chunks)n+=c.length;if(!rec.to||n<sr*0.3){return;}
-      const all=new Float32Array(n);{let o=0;for(const c of chunks){all.set(c,o);o+=c.length;}}
-      const R=11025,ratio=sr/R,len=Math.floor(n/ratio),pcm=new Int16Array(len);
-      for(let i=0;i<len;i++){const a0=Math.floor(i*ratio),a1=Math.max(a0+1,Math.floor((i+1)*ratio));let sum=0;for(let j=a0;j<a1&&j<n;j++)sum+=all[j];const v=clamp(sum/(a1-a0),-1,1);pcm[i]=v<0?v*32768:v*32767;}
-      const buf=new ArrayBuffer(44+len*2),dv=new DataView(buf),ws=(o,t)=>{for(let i=0;i<t.length;i++)dv.setUint8(o+i,t.charCodeAt(i));};
-      ws(0,'RIFF');dv.setUint32(4,36+len*2,true);ws(8,'WAVE');ws(12,'fmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,R,true);dv.setUint32(28,R*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);ws(36,'data');dv.setUint32(40,len*2,true);
-      new Int16Array(buf,44).set(pcm);
-      const u8=new Uint8Array(buf);let bin='';for(let i=0;i<u8.length;i+=0x8000)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));
-      const url='data:audio/wav;base64,'+btoa(bin);
-      if(url.length<400000)chatSend(rec.to,'v',url);else toast('Voice message too long');
-    };
-    setTimeout(()=>chatRecStop(),8000);
-  }catch(e){toast('Microphone not available');CH.rec=null;$('cmic').classList.remove('rec');}
+    const st=await navigator.mediaDevices.getUserMedia({audio:true}),mr=new MediaRecorder(st),ch=[];
+    CH.rec={mr,st,to:CH.open};$('cmic').classList.add('rec');
+    mr.ondataavailable=e=>{if(e.data.size)ch.push(e.data);};
+    mr.onstop=()=>{st.getTracks().forEach(t=>t.stop());const to=CH.rec&&CH.rec.to;CH.rec=null;$('cmic').classList.remove('rec');
+      if(!ch.length||!to)return;const fr=new FileReader();fr.onload=()=>{if(fr.result.length<400000)chatSend(to,'v',fr.result);else toast('Voice message too long');};fr.readAsDataURL(new Blob(ch,{type:mr.mimeType}));};
+    mr.start();setTimeout(()=>chatRecStop(),8000);
+  }catch(e){toast('Microphone not available');CH.rec=null;}
 }
-function chatRecStop(){if(CH.rec&&CH.rec.stop)CH.rec.stop();}
-/* play a voice message; if the browser refuses the format, decode it ourselves */
-function chatPlay(url){
-  const done=()=>{};
-  try{const a=new Audio(url),p=a.play();if(p&&p.catch)p.catch(()=>chatPlayDecode(url));}catch(e){chatPlayDecode(url);}
-}
-async function chatPlayDecode(url){
-  try{const ab=await (await fetch(url)).arrayBuffer(),AC2=window.AudioContext||window.webkitAudioContext,ac=new AC2();if(ac.state==='suspended')await ac.resume();
-    const buf=await new Promise((ok,no)=>ac.decodeAudioData(ab,ok,no)),s=ac.createBufferSource();s.buffer=buf;s.connect(ac.destination);s.start();}
-  catch(e){toast('Could not play this voice message');}
-}
+function chatRecStop(){if(CH.rec&&CH.rec.mr.state==='recording')CH.rec.mr.stop();}
 /* clicks: on a player's car in the world or a dot on the minimap */
 function chatPick(wx,wy,rad){let best=null,bd=rad;for(const [id,r] of MP.remotes){const d=Math.hypot(r.v.x-wx,r.v.y-wy);if(d<bd){bd=d;best=[id,r.v.name];}}if(best){chatOpen(best[0],best[1]);return true;}return false;}
 $('game').addEventListener('pointerdown',e=>{
@@ -4739,12 +4609,11 @@ function radioClick(){
   g.gain.setValueAtTime(0.11,AC.currentTime);g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.14);
   s.connect(f);f.connect(g);g.connect(AC.destination);s.start();s.stop(AC.currentTime+0.16);
 }
-let PAV=true;try{PAV=localStorage.getItem('cd:pav')!=='0';}catch(_){}   /* spoken police announcements on/off */
 function paSay(txt,hot){
   const el=$('pa');el.textContent=(hot?'🚔 ':'📻 ')+txt.toUpperCase();el.style.display='block';el.classList.toggle('hot',!!hot);
   clearTimeout(paHide);paHide=setTimeout(()=>{el.style.display='none';},2600);
   radioClick();
-  if(muted||!PAV||!('speechSynthesis' in window))return;
+  if(muted||!('speechSynthesis' in window))return;
   try{
     speechSynthesis.cancel();
     /* panicked delivery: fast, high-strung, clipped into short bursts; the closer the cops / the higher the wanted level, the more frantic */
@@ -4758,7 +4627,6 @@ function paSay(txt,hot){
     }
   }catch(e){}
 }
-$('policefx').innerHTML='<i class="pfr"></i><i class="pfb"></i>';
 function policeFX(dt){
   const fx=$('policefx'),on=wanted>0&&player&&!player.wreck;
   if(!on){
@@ -4767,7 +4635,7 @@ function policeFX(dt){
     paT=3;chaseMode=0;prevNear=1e9;dop+=(1-dop)*0.2;return;
   }
   // screen glow gets stronger the closer the cops are
-  if(copNear<520){const k=clamp(1-copNear/520,0,1),op=(0.18+0.45*k).toFixed(1);if(fx.style.display!=='block')fx.style.display='block';if(fx.style.opacity!==op)fx.style.opacity=op;}else if(fx.style.display!=='none')fx.style.display='none';
+  if(copNear<520){const k=clamp(1-copNear/520,0,1);fx.style.display='block';fx.style.opacity=(0.25+0.75*k).toFixed(2);}else fx.style.display='none';
   if(copNear<130)cam.shake=Math.max(cam.shake,1.6);
   // doppler: pitch rises when the nearest cop closes in, falls when he drops back
   const rate=(copNear-prevNear)/Math.max(dt,0.001);prevNear=copNear;
@@ -4789,198 +4657,27 @@ function policeFX(dt){
   }
 }
 
-/* ---------- v0.45: multiplayer race with checkpoints (rides on the existing relay: {t:'s',race:{...}}) ---------- */
-const RC={st:'idle',cps:[],laps:2,i:0,t0:0,cd:0,fin:0,pl:new Map(),R:140,last:0};
-(function(){const s=document.createElement('style');s.textContent=
-'#racehud{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;display:none;background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:6px 12px;color:#fff;font:700 14px sans-serif;text-align:center;white-space:nowrap;pointer-events:none}'+
-'#racecd{position:fixed;left:0;right:0;top:32%;z-index:8;display:none;text-align:center;color:#ffd54a;font:900 96px sans-serif;text-shadow:0 4px 18px #000;pointer-events:none}'+
-'#raceres{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9;display:none;background:rgba(18,20,24,.95);border:1px solid rgba(255,255,255,.35);border-radius:14px;padding:14px 18px;color:#fff;font:15px sans-serif;min-width:230px;box-shadow:0 8px 30px #000}'+
-'#raceres h3{margin:0 0 8px;text-align:center}#raceres div{display:flex;justify-content:space-between;gap:16px;padding:3px 0}#raceres button{margin-top:10px;width:100%;background:#ffd54a;border:0;border-radius:9px;padding:7px;font-weight:700}';
-document.head.appendChild(s);
-for(const[i,c]of[['racehud','div'],['racecd','div'],['raceres','div']]){const e=document.createElement(c);e.id=i;document.body.appendChild(e);}})();
-function raceSend(o){if(MP.ws&&MP.ws.readyState===1)MP.ws.send(JSON.stringify({t:'s',race:o}));}
-function raceTotal(){return RC.cps.length*RC.laps;}
-function raceTarget(){const n=RC.cps.length;return RC.cps[(RC.i%n+1)%n];}   /* order: cp1,cp2,..,cp0(finish) */
-function raceMake(){
-  const L=[];for(let k=0;k<roadList.length;k+=2)L.push([roadList[k]*CELL+CELL/2,roadList[k+1]*CELL+CELL/2]);
-  if(L.length<8)return null;
-  const N=Math.min(7,Math.max(4,Math.round(Math.sqrt(L.length)/2))),span=Math.max(WW,WH),pts=[L[Math.random()*L.length|0]];
-  while(pts.length<N){let best=null,bd=-1;
-    for(let t=0;t<30;t++){const c=L[Math.random()*L.length|0];let d=1e9;for(const p of pts)d=Math.min(d,Math.hypot(p[0]-c[0],p[1]-c[1]));if(d>bd){bd=d;best=c;}}
-    if(bd<span*0.08&&pts.length>=3)break;pts.push(best);}
-  const o=[pts[0]],rest=pts.slice(1);   /* nearest-neighbour order so the lap is a sensible loop */
-  while(rest.length){const l=o[o.length-1];let bi=0,bd=1e9;rest.forEach((p,i)=>{const d=Math.hypot(p[0]-l[0],p[1]-l[1]);if(d<bd){bd=d;bi=i;}});o.push(rest.splice(bi,1)[0]);}
-  return o.map(p=>({x:Math.round(p[0]),y:Math.round(p[1])}));
-}
-function raceStart(){
-  if(RC.st!=='idle'&&RC.st!=='done'){raceStop(true);return;}
-  const cps=raceMake();if(!cps){toast('Map has too few roads for a race');return;}
-  raceSend({k:'go',cps,laps:2});raceBegin(cps,2,MP.name);
-}
-function raceBegin(cps,laps,by){
-  RC.cps=cps;RC.laps=laps;RC.i=0;RC.st='count';RC.cd=5;RC.fin=0;RC.pl.clear();$('raceres').style.display='none';
-  const s=RC.cps[0],p=player;placeOnRoad(p,s.x+(Math.random()-.5)*230,s.y+(Math.random()-.5)*230);p.vx=p.vy=0;RC.hold={x:p.x,y:p.y};
-  setWanted&&setWanted(0);toast('🏁 Race started'+(by?' by '+by:'')+' – '+laps+' laps, '+cps.length+' checkpoints');updRace();
-}
-function raceStop(send){if(send)raceSend({k:'stop'});RC.st='idle';$('racehud').style.display='none';$('racecd').style.display='none';$('raceres').style.display='none';updRace();}
-function updRace(){const b=$('raceBtn');if(b)b.innerHTML=(RC.st==='idle'||RC.st==='done')?'🏁<span class="cl2"> Race</span>':'✖<span class="cl2"> Stop</span>';}
-function raceRecv(r,id){
-  if(r.k==='go'){if(mode==='game')raceBegin(r.cps,r.laps,'');}
-  else if(r.k==='stop'){if(RC.st!=='idle')raceStop(false);toast('Race stopped');}
-  else if(r.k==='p'){RC.pl.set(id,{n:r.n,c:r.c,t:r.t});}
-}
-function raceRank(){
-  const me={n:MP.name,c:RC.i,t:RC.fin||0,me:1},a=[me,...RC.pl.values()];
-  a.sort((x,y)=>(y.c-x.c)||((x.t||1e9)-(y.t||1e9)));return a;
-}
-function raceTick(t,dt){
-  if(RC.st==='idle'||RC.st==='done'&&false)return;
-  if(mode!=='game'||!MP.code){raceStop(false);return;}
-  const p=player,cd=$('racecd'),h=$('racehud');
-  if(RC.st==='count'){
-    RC.cd-=dt;p.x=RC.hold.x;p.y=RC.hold.y;p.vx=p.vy=0;
-    const n=Math.ceil(RC.cd);cd.style.display='block';cd.textContent=n>0?n:'GO!';
-    if(RC.cd<=0){RC.st='run';RC.t0=performance.now();setTimeout(()=>{if(RC.st==='run')cd.style.display='none';},700);}
-    return;
-  }
-  const tot=raceTotal();
-  if(RC.st==='run'){
-    const g=raceTarget();
-    if(!p.wreck&&Math.hypot(p.x-g.x,p.y-g.y)<RC.R){
-      RC.i++;if(RC.i>=tot){RC.fin=(performance.now()-RC.t0)/1000;RC.st='done';toast('🏁 Finished in '+RC.fin.toFixed(1)+'s');}
-      raceSend({k:'p',n:MP.name,c:RC.i,t:RC.fin});RC.last=t;
-    }else if(t-RC.last>1.2){RC.last=t;raceSend({k:'p',n:MP.name,c:RC.i,t:RC.fin});}
-  }
-  const rk=raceRank(),pos=rk.findIndex(x=>x.me)+1,n=RC.cps.length,lap=Math.min(RC.laps,Math.floor(RC.i/n)+1);
-  const el=RC.st==='run'?(performance.now()-RC.t0)/1000:RC.fin;
-  h.style.display='block';h.textContent='Lap '+lap+'/'+RC.laps+' · CP '+(RC.i%n)+'/'+n+' · P'+pos+'/'+rk.length+' · '+el.toFixed(1)+'s';
-  if(RC.st==='done'||rk.every(x=>x.c>=tot)){
-    const r=$('raceres');r.style.display='block';
-    r.innerHTML='<h3>🏁 Race results</h3>'+rk.map((x,i)=>'<div><span>'+(i+1)+'. '+esc(x.n)+(x.me?' (you)':'')+'</span><b>'+(x.c>=tot?(x.t).toFixed(1)+'s':'CP '+x.c+'/'+tot)+'</b></div>').join('')+'<button id="raceok">OK</button>';
-    $('raceok').onclick=()=>{r.style.display='none';RC.st='idle';h.style.display='none';updRace();};
-  }
-}
-function raceDraw(t){
-  if(RC.st==='idle'||!RC.cps.length)return;
-  const n=RC.cps.length,tot=raceTotal(),k=RC.i%n,g=RC.cps[(k+1)%n],start=RC.cps[0];
-  const ring=(c,col,w,pulse)=>{const r=RC.R*(pulse?1+0.08*Math.sin(t*6):1);ctx.lineWidth=w;ctx.strokeStyle=col;ctx.beginPath();ctx.arc(c.x,c.y,r,0,TAU);ctx.stroke();};
-  ctx.save();
-  if(RC.i<tot){
-    ctx.setLineDash([22,16]);ring(start,'rgba(255,255,255,.55)',8,0);ctx.setLineDash([]);
-    const nx=RC.cps[(k+2)%n];if(RC.i<tot-1&&nx!==g){ring(nx,'rgba(255,213,74,.35)',6,0);}
-    ctx.fillStyle='rgba(255,213,74,.18)';ctx.beginPath();ctx.arc(g.x,g.y,RC.R,0,TAU);ctx.fill();ring(g,'#ffd54a',10,1);
-    ctx.font='900 46px sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=5;
-    const lb=(k+1)%n===0?'🏁':String((k+1)%n);ctx.strokeText(lb,g.x,g.y+16);ctx.fillText(lb,g.x,g.y+16);
-    const p=player,a=Math.atan2(g.y-p.y,g.x-p.x),d=Math.hypot(g.x-p.x,g.y-p.y);
-    if(d>260){const ax=p.x+Math.cos(a)*130,ay=p.y+Math.sin(a)*130;ctx.translate(ax,ay);ctx.rotate(a);ctx.fillStyle='rgba(255,213,74,.95)';ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(26,0);ctx.lineTo(-14,-18);ctx.lineTo(-6,0);ctx.lineTo(-14,18);ctx.closePath();ctx.fill();ctx.stroke();}
-  }
-  ctx.restore();
-}
-$('raceBtn').onclick=raceStart;
-window.__rc={RC,raceTarget,raceTotal};
-
-/* ---------- v0.46: optional Telegram login (QR on desktop, button on the phone) ---------- */
-window.TGS='';
-(function(){
-  const post=(u,o)=>fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o||{})}).then(r=>r.json());
-  const box=document.createElement('div');box.id='tgbox';box.style.cssText='display:none;margin-top:8px;font-size:13px;text-align:center';
-  const mp=$('mp');if(!mp)return;mp.parentNode.insertBefore(box,mp.nextSibling);
-  let who='',poll=0;
-  function draw(){
-    box.innerHTML=who?'<span style="color:#7fe08a;font-weight:700">✓ Telegram: '+esc(who)+'</span> <button id="tgOut" type="button">Log out</button>':'<button id="tgIn" type="button" style="background:#2aabee;color:#fff;border:0;border-radius:9px;padding:7px 14px;font-weight:700;cursor:pointer">✈ Log in with Telegram</button>';
-    if(who){$('tgOut').onclick=()=>{who='';window.TGS='';try{localStorage.removeItem('cd:tg');}catch(_){}$('mpName').readOnly=false;draw();};$('mpName').value=who;$('mpName').readOnly=true;MP.name=who;}
-    else $('tgIn').onclick=login;
-  }
-  function login(){
-    post('/tg/new').then(r=>{
-      if(!r.ok){toast('Telegram login is not available right now');return;}
-      let svg='';try{const qr=qrcode(0,'M');qr.addData(r.url);qr.make();svg=qr.createSvgTag({cellSize:5,margin:2,scalable:true});}catch(e){}
-      modal('Log in with Telegram',
-        '<p class="muted">Scan with your phone camera, or press the button if Telegram is on this device. Then press <b>Approve</b> in the Telegram chat.</p>'+
-        '<div style="background:#fff;border-radius:10px;padding:6px;width:200px;margin:8px auto">'+svg+'</div>'+
-        '<p style="text-align:center"><a href="'+esc(r.url)+'" target="_blank" rel="noopener" style="display:inline-block;background:#2aabee;color:#fff;border-radius:9px;padding:9px 16px;font-weight:700;text-decoration:none">✈ Open Telegram</a></p>'+
-        '<p class="muted" id="tgWait" style="text-align:center">Waiting for your approval…</p>');
-      const sv=document.querySelector('#mbody svg');if(sv){sv.style.width='100%';sv.style.height='auto';}
-      clearInterval(poll);const t0=Date.now();
-      poll=setInterval(()=>{
-        if(!$('tgWait')||Date.now()-t0>5*60000){clearInterval(poll);if($('tgWait'))$('tgWait').textContent='Request expired – close and try again.';return;}
-        post('/tg/poll',{token:r.token}).then(p=>{
-          if(p.ok){clearInterval(poll);who=p.name;window.TGS=p.s;try{localStorage.setItem('cd:tg',p.s);}catch(_){}closeModal();draw();toast('✓ Logged in as '+who);}
-          else if(p.gone){clearInterval(poll);if($('tgWait'))$('tgWait').textContent='Cancelled or expired – close and try again.';}
-        }).catch(()=>{});
-      },1500);
-    }).catch(()=>toast('Cannot reach the game server'));
-  }
-  if(!/^https?:/.test(location.protocol))return;
-  fetch('/tg/info').then(r=>r.json()).then(i=>{
-    if(!i||!i.on)return;box.style.display='block';draw();
-    let s='';try{s=localStorage.getItem('cd:tg')||'';}catch(_){}
-    if(s)post('/tg/me',{s}).then(m=>{if(m.ok){who=m.name;window.TGS=s;draw();}}).catch(()=>{});
-  }).catch(()=>{});
-})();
-
 /* touch control schemes: arrows / arrows+auto gas / tilt / wheel */
 let CTL='arrows',TILTINV=1;try{CTL=localStorage.getItem('cd:ctl')||'arrows';TILTINV=+(localStorage.getItem('cd:tinv')||1);}catch(_){}
-/* Touch driving model.
-   Joystick = the DIRECTION you want to travel (screen up = north). The car turns toward it; reversing flips the sense.
-   Brake button = tap 1: handbrake until the car stops; tap 2 (also while stopping): reverse mode; tap while reversing: stop.
-   Gas always means forward and leaves reverse mode. */
-const JOY={on:false,x:0,y:0},TD={st:'D',pend:0,tg:0};
-const wrapA=x=>{while(x>Math.PI)x-=TAU;while(x<-Math.PI)x+=TAU;return x;};
-function fvNow(){return player.vx*Math.sin(player.a)-player.vy*Math.cos(player.a);}
-function joySteer(){
-  if(!JOY.on||mode!=='game'||(CTL!=='joy'&&CTL!=='auto'))return 0;
-  const t=Math.atan2(JOY.x,-JOY.y),fv=fvNow(),rm=TD.st==='R';   /* target heading is flipped only in reverse mode; a bounce backwards does not count */
-  const e=wrapA((rm?t+Math.PI:t)-player.a);
-  return clamp(e*2.4,-1,1)*(Math.abs(fv)>20?Math.sign(fv):(rm?-1:1));   /* yaw follows the sign of the travel speed */
-}
-function touchDrive(){
-  const o={dn:false,hb:false};if(mode!=='game'){TD.st='D';TD.pend=0;return o;}
-  const fv=fvNow();
-  if(tk.up&&TD.st!=='D'){TD.st='D';TD.pend=0;}
-  if(TD.st==='S'){
-    if(Math.abs(fv)<8){TD.st=TD.pend?'R':'D';TD.pend=0;}
-    else{o.hb=true;o.dn=fv>25;}
-  }
-  if(TD.st==='R'){o.dn=true;}
-  return o;
-}
-
-const CTLS=[['joy','Joystick'],['auto','Joystick + auto gas'],['tilt','Tilt phone'],['wheel','Steering wheel']];
-if(CTL==='arrows')CTL='joy';
-if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
+const CTLS=[['arrows','Arrows'],['auto','Arrows + auto gas'],['tilt','Tilt phone'],['wheel','Steering wheel']];
+if(!CTLS.some(c=>c[0]===CTL))CTL='arrows';
 {
  const mk=(id,k,txt)=>{const b=document.createElement('div');b.className='pd';b.id=id;b.dataset.k=k;b.textContent=txt;$('touch').appendChild(b);
   const on=e=>{e.preventDefault();tk[k]=1;b.classList.add('act');try{b.setPointerCapture(e.pointerId);}catch(_){}};
   const off=e=>{e.preventDefault();tk[k]=0;b.classList.remove('act');};
   b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);b.addEventListener('contextmenu',e=>e.preventDefault());};
- /* left-hand joystick: horizontal = steering (analog), vertical only moves the knob */
- const jb=document.createElement('div');jb.id='joy';jb.innerHTML='<div id="joyk"></div>';$('touch').appendChild(jb);
- {let act=null;const kn=jb.firstChild;
-  const mv=e=>{const r=jb.getBoundingClientRect(),R=r.width/2,cx=r.left+R,cy=r.top+R;let dx=e.clientX-cx,dy=e.clientY-cy;const L=Math.hypot(dx,dy);if(L>R){dx*=R/L;dy*=R/L;}
-   kn.style.transform='translate('+dx+'px,'+dy+'px)';JOY.x=dx/R;JOY.y=dy/R;JOY.on=Math.hypot(JOY.x,JOY.y)>0.28;};
-  const on=e=>{e.preventDefault();act=e.pointerId;jb.classList.add('act');try{jb.setPointerCapture(e.pointerId);}catch(_){}mv(e);};
-  const off=e=>{if(e.pointerId!==act)return;act=null;JOY.on=false;kn.style.transform='translate(0,0)';jb.classList.remove('act');};
-  jb.addEventListener('pointerdown',on);jb.addEventListener('pointermove',e=>{if(e.pointerId===act)mv(e);});jb.addEventListener('pointerup',off);jb.addEventListener('pointercancel',off);jb.addEventListener('lostpointercapture',off);jb.addEventListener('contextmenu',e=>e.preventDefault());}
- {const bb=$('tbrk');bb.innerHTML='🛑<br>BRAKE<br>↺ REVERSE';
-  bb.addEventListener('pointerdown',()=>{if(mode!=='game')return;const fv=fvNow();
-   if(TD.st==='R'){TD.st='S';TD.pend=0;toast('⏹ Stopping');}
-   else if(TD.st==='S'){TD.pend=1;toast('↺ Reverse next');}
-   else if(fv>20){TD.st='S';TD.pend=0;toast('⏹ Handbrake');}
-   else{TD.st='R';toast('↺ Reverse – press gas to go forward');}
-  });}
-
+ mk('tleft','left','◀');mk('tright','right','▶');
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.47 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.36 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
-  const arr=CTL==='joy'||CTL==='auto';
+  const arr=CTL==='arrows'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
-  $('joy').style.display=arr?'block':'none';$('thb').style.display='none';
+  $('tleft').style.display=$('tright').style.display=arr?'flex':'none';
   $('tgas').style.display=CTL==='auto'?'none':'';
   ib.style.display=CTL==='tilt'&&mode==='game'&&isTouch?'block':'none';
   tk.sa=0;tk.left=0;tk.right=0;
-  cb.innerHTML='⚙<span class="cl"> '+CTLS.find(c=>c[0]===CTL)[1]+'</span>';
+  cb.textContent='⚙ '+CTLS.find(c=>c[0]===CTL)[1];
  };
  cb.onclick=()=>{
   const i=CTLS.findIndex(c=>c[0]===CTL);CTL=CTLS[(i+1)%CTLS.length][0];
@@ -5004,35 +4701,21 @@ window.PAUSED=false;
 {
  const pb=document.createElement('button');pb.id='tpause';pb.title='Pause / menu (Esc or P)';pb.textContent='⏸';document.body.appendChild(pb);
  const ov=document.createElement('div');ov.id='pausebox';
- ov.innerHTML='<div class="pbx"><h2>Paused</h2><button id="p_res" class="go">▶ Resume</button><button id="p_rst">↺ Back to road</button><button id="p_pa" class="pgl"></button><button id="p_gq" class="pgl"></button><button id="p_menu"></button><p class="muted" id="p_note"></p></div>';
+ ov.innerHTML='<div class="pbx"><h2>Paused</h2><button id="p_res" class="go">▶ Resume</button><button id="p_rst">↺ Back to road</button><button id="p_menu"></button><p class="muted" id="p_note"></p></div>';
  document.body.appendChild(ov);
  window.setPause=function(v){
   v=!!v&&mode==='game';window.PAUSED=v;ov.style.display=v?'flex':'none';
   pb.style.display=mode==='game'?'block':'none';
-  if(v){silence();pbRefresh();$('p_menu').textContent=fromEditor?'✏️ Back to the editor':'🏠 Main menu';$('p_note').textContent=(typeof MP!=='undefined'&&MP.ws)?'Other players keep driving while you are paused.':'';}
+  if(v){silence();$('p_menu').textContent=fromEditor?'✏️ Back to the editor':'🏠 Main menu';$('p_note').textContent=(typeof MP!=='undefined'&&MP.ws)?'Other players keep driving while you are paused.':'';}
   else audioResume();
  };
  window.togglePause=function(){if(mode==='game')setPause(!window.PAUSED);};
  pb.onclick=()=>togglePause();
  $('p_res').onclick=()=>setPause(false);
- const GQN={auto:'⚡ Graphics: Auto (eases off if slow)',low:'⚡ Graphics: Low (smoothest)',high:'⚡ Graphics: High (sharpest)'};
- window.pbRefresh=()=>{$('p_pa').textContent=PAV?'📻 Police voice: ON':'🔇 Police voice: OFF';$('p_gq').textContent=GQN[GQ]||GQN.auto;};
- $('p_pa').onclick=()=>{PAV=!PAV;try{localStorage.setItem('cd:pav',PAV?'1':'0');}catch(_){}if(!PAV){try{speechSynthesis.cancel();}catch(_){}}pbRefresh();};
- $('p_gq').onclick=()=>{GQ=GQ==='auto'?'low':GQ==='low'?'high':'auto';try{localStorage.setItem('cd:gq',GQ);localStorage.setItem('cd:qs','1');}catch(_){}window.QSV=GQ==='low'?0.6:1;resize();pbRefresh();};
  $('p_rst').onclick=()=>{setPause(false);if(typeof resetPlayer==='function')resetPlayer();};
  $('p_menu').onclick=()=>{setPause(false);exitGame();};
  pb.style.display='none';
 }
-/* v0.47: one fixed top bar (max 1/8 of the window) that holds everything that informs the player */
-try{const hc=document.createElement('div');hc.id='hudcol';
-['tpause','mute','inbox','tctl','tsw','tinv'].forEach(i=>{const e=document.getElementById(i);if(e)hc.appendChild(e);});
-const tb=document.createElement('div');tb.id='topbar';const tc=document.createElement('div');tc.id='tbC';
-document.body.appendChild($('hint'));
-tc.appendChild($('roombar'));tc.appendChild($('racehud'));
-tb.appendChild($('hud'));tb.appendChild(tc);tb.appendChild(hc);tb.appendChild($('mini'));document.body.appendChild(tb);
-const setTb=()=>document.documentElement.style.setProperty('--tb',Math.round(innerHeight/8)+'px');setTb();addEventListener('resize',setTb);
-setInterval(()=>document.body.classList.toggle('racing',$('racehud').style.display==='block'),300);
-}catch(_){}
 
 showUI();
 setMap(showcaseMap());
