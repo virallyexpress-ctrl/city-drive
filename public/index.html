@@ -258,6 +258,14 @@ body.racing #roomtxt,body.racing #invite{display:none}
 .polT{width:100%;border-collapse:collapse;font-size:12px}.polT th,.polT td{border-bottom:1px solid #2c3644;padding:6px 4px;text-align:center;vertical-align:middle}
 .polT td:first-child{text-align:left;max-width:190px}.polT small{opacity:.6;font-weight:400;font-size:10px;line-height:1.3;display:inline-block}
 .polT .pv{font-size:18px!important;padding:5px 7px!important;margin:1px;min-width:38px}.polT .na{opacity:.3}
+#hbkbtn{margin-top:6px;font-size:14px;font-weight:700;padding:8px 22px;border:2px solid rgba(255,255,255,.4);border-radius:999px;background:rgba(255,255,255,.06);color:#fff;cursor:pointer}
+.hbr{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-bottom:1px solid #2c3644}.hbr small{opacity:.6;font-size:11px}.hbr input{width:100%}.hbr span{color:#ffd54a;font-weight:800}
+#esc{position:fixed;left:50%;top:calc(var(--tb) + 86px);transform:translateX(-50%);display:none;text-align:center;pointer-events:none;z-index:6}
+#escnum{font-size:20px;font-weight:900;text-shadow:0 2px 8px #000;color:#7ec8ff}
+#esc.go #escnum{color:#4cd964;animation:bp .5s infinite alternate}
+#escbar{width:220px;height:10px;background:rgba(0,0,0,.6);border:2px solid #fff;border-radius:8px;overflow:hidden;margin:4px auto 0}
+#escbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3b6bff,#7ec8ff);transition:width .1s linear}
+#esc.go #escbar i{background:linear-gradient(90deg,#2fb34a,#4cd964)}
 </style>
 </head>
 <body>
@@ -3177,7 +3185,7 @@ function stepVehicle(v,dt){
   let fx=Math.sin(v.a),fy=-Math.cos(v.a);
   let fv=v.vx*fx+v.vy*fy;
   const sf=Math.min(Math.abs(fv)/d.max,1);
-  const yaw=v.sp*d.turn*clamp(fv/150,-1,1)*(1-0.5*sf)*(v.hb?1.5:1);
+  const yaw=v.sp*d.turn*clamp(fv/150,-1,1)*(1-0.5*sf)*(v.hb?HBK.turn:1);
   v.a+=(yaw+v.av)*dt;v.av*=Math.exp(-5*dt);
   fx=Math.sin(v.a);fy=-Math.cos(v.a);const rx=Math.cos(v.a),ry=Math.sin(v.a);
   fv=v.vx*fx+v.vy*fy;let lv=v.vx*rx+v.vy*ry;
@@ -3188,9 +3196,9 @@ function stepVehicle(v,dt){
     else if(fv>-0.33*d.max){fv+=d.acc*v.th*0.8*dt;}
   }
   if(v.th===0){fv-=fv*0.35*dt;const f=Math.min(Math.abs(fv),50*dt);fv-=Math.sign(fv)*f;}
-  if(v.hb){fv*=Math.exp(-0.9*dt);v.brk=1;}
+  if(v.hb){fv*=Math.exp(-HBK.brake*dt);v.brk=1;}
   const lvBefore=lv;
-  lv*=Math.exp(-(v.hb?1.3:7.5)*dt);
+  lv*=Math.exp(-(v.hb?HBK.grip:7.5)*dt);
   v.vx=fx*fv+rx*lv;v.vy=fy*fv+ry*lv;
   if(v.wreck){const k=Math.exp(-1.6*dt);v.vx*=k;v.vy*=k;}
   v.x+=v.vx*dt;v.y+=v.vy*dt;
@@ -4882,6 +4890,21 @@ function condDraw(){const p=player;if(!p||p.roof||p.air>0||p.wreck)return;const 
  addEventListener('pagehide',condSave);}
 window.__cond={condOf,condSet};
 
+/* v0.59: handbrake tuning (used by the physics; saved per device) */
+const HBK_DEF={turn:1.5,brake:0.9,grip:1.3};let HBK=Object.assign({},HBK_DEF);
+try{const s=JSON.parse(localStorage.getItem('cd:hbk')||'null');if(s)for(const k in HBK_DEF)if(typeof s[k]==='number')HBK[k]=s[k];}catch(_){}
+window.__hbk=()=>HBK;
+function hbkOpen(){
+  const R=[['turn','🔄','Spin power','How hard the car rotates while the handbrake is held. Higher = sharper turns and easier spins.',1,3,0.1],
+           ['brake','🛑','Stopping force','How fast the handbrake slows the car down. Higher = shorter stops.',0.2,4,0.1],
+           ['grip','🛞','Rear grip','How much sideways grip stays while drifting. Lower = longer, wider drifts; higher = the car snaps straight quickly.',0.3,6,0.1]];
+  const draw=()=>{modal('🅿 Handbrake settings','<p class="muted">Tune how the handbrake feels. Changes apply instantly and are saved on this device.</p>'+
+    R.map(r=>'<div class="hbr" title="'+esc(r[3])+'"><div><b>'+r[1]+' '+r[2]+'</b> <span id="hbv_'+r[0]+'">'+HBK[r[0]].toFixed(1)+'</span><br><small>'+esc(r[3])+'</small></div><input type="range" min="'+r[4]+'" max="'+r[5]+'" step="'+r[6]+'" value="'+HBK[r[0]]+'" data-k="'+r[0]+'"></div>').join('')+
+    '<div class="row"><button id="hbkReset" class="danger">Reset to defaults</button></div>');
+    document.querySelectorAll('#mbody .hbr input').forEach(i=>i.oninput=()=>{HBK[i.dataset.k]=+i.value;$('hbv_'+i.dataset.k).textContent=(+i.value).toFixed(1);try{localStorage.setItem('cd:hbk',JSON.stringify(HBK));}catch(_){}});
+    $('hbkReset').onclick=()=>{HBK=Object.assign({},HBK_DEF);try{localStorage.removeItem('cd:hbk');}catch(_){}draw();};};
+  draw();
+}
 /* ---------- v0.55: policy engine – one table decides how every group behaves; game modes override it ---------- */
 const POLG=[['civ','🚗','Civilians'],['sec','🚓','Security forces'],['ply','🧑','Players']];
 const POLR=[
@@ -5116,7 +5139,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.58 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.59 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
@@ -5242,6 +5265,16 @@ info();setTimeout(()=>go(1),400);window.__demo={sel,go};
 /* v0.55: policy button – menu + pause menu */
 try{const b=document.createElement('button');b.id='polbtn';b.type='button';b.textContent='⚖ Policy';b.title='Rules for every group: civilians, security forces, players';b.onclick=polOpen;$('pick').insertBefore(b,$('vmenu').nextSibling);
 const q=document.createElement('button');q.className='pgl';q.textContent='⚖ Policy';q.onclick=()=>{polOpen();};const g=$('p_gq');g.parentNode.insertBefore(q,g.nextSibling);}catch(e){console.error(e);}
+
+/* v0.59: handbrake settings button (menu + pause) and escape meter */
+try{const b=document.createElement('button');b.id='hbkbtn';b.type='button';b.textContent='🅿 Handbrake';b.title='Tune spin power, stopping force and rear grip';b.onclick=hbkOpen;$('polbtn').after(b);
+const q=document.createElement('button');q.className='pgl';q.textContent='🅿 Handbrake';q.onclick=hbkOpen;const g=$('p_gq');g.parentNode.insertBefore(q,g.nextSibling);}catch(e){console.error(e);}
+try{const e=document.createElement('div');e.id='esc';e.innerHTML='<div id="escnum"></div><div id="escbar"><i></i></div>';document.body.appendChild(e);
+setInterval(()=>{const on=mode==='game'&&wanted>0&&!(bustT>0.05);e.style.display=on?'block':'none';if(!on)return;
+ const far=650,need=7;let txt,pct,cls;
+ if(copNear>far){pct=Math.min(1,escapeT/need);txt='ESCAPING IN '+Math.max(0,need-escapeT).toFixed(1)+'s';cls='go';}
+ else{pct=Math.max(0,Math.min(1,copNear/far));txt=copNear>=1e8?'LOSE THE POLICE':'GET AWAY '+Math.round(far-copNear)+' m more';cls='far';}
+ $('escnum').textContent=txt;e.className=cls;e.querySelector('i').style.width=(pct*100).toFixed(0)+'%';},100);}catch(e){console.error(e);}
 
 showUI();
 setMap(showcaseMap());
