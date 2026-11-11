@@ -5204,8 +5204,9 @@ function raceTick(t,dt){
   h.style.display='block';h.textContent='Lap '+lap+'/'+RC.laps+' · CP '+(RC.i%n)+'/'+n+' · P'+pos+'/'+rk.length+' · '+el.toFixed(1)+'s';
   if(RC.st==='done'||rk.every(x=>x.c>=tot)){
     const r=$('raceres');r.style.display='block';
-    r.innerHTML='<h3>🏁 Race results</h3>'+rk.map((x,i)=>'<div><span>'+(i+1)+'. '+esc(x.n)+(x.me?' (you)':'')+'</span><b>'+(x.c>=tot?(x.t).toFixed(1)+'s':'CP '+x.c+'/'+tot)+'</b></div>').join('')+(RC.team?raceTeams(rk,tot):'')+'<button id="raceok">OK</button>';
-    $('raceok').onclick=()=>{r.style.display='none';RC.st='idle';h.style.display='none';updRace();if(typeof botClear==='function')botClear();};
+    const H='<h3>🏁 Race results</h3>'+rk.map((x,i)=>'<div><span>'+(i+1)+'. '+esc(x.n)+(x.me?' (you)':'')+'</span><b>'+(x.c>=tot?(x.t).toFixed(1)+'s':'CP '+x.c+'/'+tot)+'</b></div>').join('')+(RC.team?raceTeams(rk,tot):'')+'<button id="raceok">OK</button>';
+    if(r._h===H)return;r._h=H;r.innerHTML=H;
+    $('raceok').onclick=()=>{r._h='';r.style.display='none';RC.st='idle';h.style.display='none';updRace();if(typeof botClear==='function')botClear();};
   }
 }
 function raceDraw(t){
@@ -5368,7 +5369,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.63 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.64 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
