@@ -308,6 +308,60 @@ body.racing #dgrt{top:calc(var(--tb) + 40px)!important}}
 @media (max-height:520px){#hero{flex-basis:58%!important}#logowrap{--lw:52vh}#hero h1{font-size:30px!important}}
 @media (min-width:821px) and (min-height:521px){#hero{flex-basis:56%!important}}
 #trfpts{display:inline-block;margin-left:6px;font-size:max(10px,calc(var(--tb)*.11));font-weight:800;color:#9fe1cb;vertical-align:middle}#trfpts.mid{color:#ffd54a}#trfpts.hi{color:#ff5a4d;animation:lgp 1s infinite}
+#menu>*:not(#mmain){display:none!important}
+#mmain{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#1f2b3a 0%,#0b0f14 80%)}
+#mtrack{position:absolute;inset:0;width:100%;height:100%}
+#mlogo{position:absolute;z-index:3;filter:drop-shadow(0 6px 18px rgba(0,0,0,.7))}
+#mdraw{position:absolute;inset:0;z-index:4;pointer-events:none}
+.mdr{position:absolute;pointer-events:auto;height:44px;display:flex;align-items:center;gap:8px;padding:0 12px;box-sizing:border-box;border:2px solid #3b82f6;border-radius:8px;background:linear-gradient(180deg,#1b2a44,#101827);color:#e6efff;font-weight:800;font-size:clamp(11px,1.6vh,15px);cursor:pointer;transform:skewX(var(--sk,0deg));box-shadow:0 4px 0 #0a1222,0 6px 14px rgba(0,0,0,.5);transition:transform .25s cubic-bezier(.2,.9,.3,1.3),box-shadow .2s,border-color .2s}
+.mdr>*{transform:skewX(calc(-1*var(--sk,0deg)))}.mdr i{font-style:normal;font-size:1.35em}.mdr span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdr.sL{justify-content:flex-start}.mdr.sR{flex-direction:row-reverse}
+.mdr:hover,.mdr:focus-visible{border-color:#ffd54a;box-shadow:0 4px 0 #6b5310,0 0 18px rgba(255,190,60,.55);outline:none}
+.mdr.sL:hover{transform:skewX(var(--sk)) translateX(-8px)}.mdr.sR:hover{transform:skewX(var(--sk)) translateX(8px)}
+.mdr.pull.sL{transform:skewX(var(--sk)) translateX(-22px)}.mdr.pull.sR{transform:skewX(var(--sk)) translateX(22px)}
+.mdr.flag{height:52px;border-color:#ffd54a;background:repeating-conic-gradient(#1a1a1a 0 25%,#2c2c2c 0 50%) 0 0/18px 18px;color:#ffd54a}
+#mstart{position:absolute;z-index:5;cursor:pointer;border:3px solid #e2b93b;border-radius:50%;background:radial-gradient(circle at 40% 35%,#1c1c1c,#000 75%);box-shadow:0 0 0 2px #000,0 6px 16px rgba(0,0,0,.7);padding:0;display:flex;align-items:center;justify-content:center;animation:mst 1.6s ease-in-out infinite}
+#mstart svg{width:70%;height:70%;transform:translateY(-2%);transition:transform .4s cubic-bezier(.3,1.5,.5,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.8))}
+#mstart small{position:absolute;left:0;right:0;bottom:-1.5em;font-weight:900;letter-spacing:2px;font-size:min(1.8vh,14px);color:#ffd54a;text-shadow:0 2px 4px #000}
+#mstart:hover{border-color:#fff3b0;box-shadow:0 0 0 2px #000,0 0 24px rgba(255,200,70,.9)}
+@keyframes mst{50%{transform:scale(1.07);box-shadow:0 0 0 2px #000,0 0 22px rgba(255,200,70,.8)}}
+#mcar{position:absolute;left:0;right:0;z-index:5;text-align:center;font-size:13px;color:#ffd54a;text-shadow:0 2px 6px #000;pointer-events:none}
+#mpanel{position:absolute;z-index:8;left:50%;top:50%;width:min(92vw,560px);max-height:78vh;overflow:auto;transform:translate(-50%,-50%) scale(.15);opacity:0;pointer-events:none;background:linear-gradient(180deg,#2a2110,#14110a);border:2px solid #ffd54a;border-radius:16px;box-shadow:0 0 0 1px #000,0 18px 50px rgba(0,0,0,.75),0 0 40px rgba(255,170,40,.25);padding:12px 14px;transition:transform .32s cubic-bezier(.2,.9,.3,1.15),opacity .22s}
+#mpanel.open{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+#mpHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:#ffd54a;font-size:16px}
+#mpClose{background:none;border:1px solid rgba(255,213,74,.5);color:#ffd54a;border-radius:8px;width:32px;height:32px;cursor:pointer}
+#mpBody #demo{width:100%}#mpBody #mp{margin:0}
+#mmain #legal{position:absolute;left:0;right:0;bottom:6px;z-index:6;margin:0}
+.mdr .ls{display:none}
+@media (max-width:520px){.mdr .lf{display:none}.mdr .ls{display:inline}.mdr{padding:0 8px;gap:6px}}
+@media (min-width:821px){.mdr{height:50px;font-size:clamp(13px,1.9vh,17px)}}
+#chhud{position:fixed;left:50%;top:calc(var(--tb) + 6px);transform:translateX(-50%);z-index:6;display:none;background:rgba(0,0,0,.68);border:2px solid #ffd54a;border-radius:12px;padding:5px 12px;color:#fff;font:700 14px sans-serif;white-space:nowrap;pointer-events:none;max-width:96vw;overflow:hidden}
+#chhud.warn{animation:lgp .6s infinite;color:#ff8a7a}
+@media (max-width:520px){#chhud{font-size:12px;padding:4px 8px}}
+#mseason{position:absolute;right:10px;top:10px;z-index:7;border:2px solid #ffd54a;border-radius:999px;background:linear-gradient(180deg,#3a2c08,#17120a);color:#ffd54a;font-weight:800;font-size:14px;padding:8px 14px;cursor:pointer;box-shadow:0 0 14px rgba(255,190,60,.45);animation:lgp 2s infinite}
+@media (max-width:520px){#mseason span{display:none}#mseason{font-size:20px;padding:6px 10px}}
+.chc{display:flex;justify-content:space-between;align-items:center;gap:10px;border:2px solid;border-radius:12px;padding:10px;margin:8px 0;font-size:14px}.chc small{opacity:.75;font-size:12px;line-height:1.4}
+.chc button{flex:none;width:52px;height:52px;border-radius:50%;border:0;font-size:22px;color:#111;cursor:pointer}
+
+#mstart.go{animation:none}#mstart.go svg{transform:rotate(-90deg) translateY(4%)}#mstart small{transition:opacity .15s}#mstart.go small{opacity:0}
+#mgo{position:absolute;left:50%;top:50%;font:italic 900 min(2.6vh,20px) sans-serif;letter-spacing:2px;color:#fff;text-shadow:-10px 0 0 rgba(255,255,255,.35),-20px 0 0 rgba(255,255,255,.15),0 2px 4px #000;opacity:0;pointer-events:none;transform:translate(-400%,-50%)}
+#mstart.go #mgo{animation:mgo .65s .3s cubic-bezier(.5,0,.9,.6) forwards}
+@keyframes mgo{0%{opacity:0;transform:translate(-400%,-50%)}15%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translate(260%,-50%)}}
+.mspk{position:absolute;z-index:9;width:6px;height:6px;border-radius:50%;pointer-events:none;box-shadow:0 0 8px currentColor;animation:mspk .75s ease-out forwards}
+@keyframes mspk{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+#ed button.ib{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:3px 9px;min-width:50px;line-height:1.05}
+#ed button.ib i,#mbody button.ib i{font-style:normal;font-size:18px;line-height:1}#ed button.ib span,#mbody button.ib span{font-size:10px;font-weight:700}
+#edtop{gap:6px;justify-content:flex-start}
+.toolgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px 8px}.toolgrid button.ib{min-width:0!important;padding:6px 2px!important}
+#mbody .toolgrid{grid-template-columns:repeat(3,1fr)}#mbody button.ib{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px}#mbody button.ib i{font-size:26px}
+@media (max-width:820px){#ed .edtab{top:50px}}
+button.ib i{background:none!important;border-radius:0!important;width:auto!important;height:auto!important;display:inline!important;position:static!important;opacity:1!important;float:none!important}
+#edtools.toolgrid{display:grid!important}
+button.ib i,button.ib span{align-self:center!important;margin:0!important;text-align:center}
+#lawbtn{background:rgba(25,30,38,.7);border:1px solid rgba(255,255,255,.3);border-radius:10px;color:#fff;cursor:pointer}
+#lawbtn.on{background:#2fb34a!important;border-color:#b6f5c4!important;box-shadow:0 0 12px rgba(76,217,100,.9)}#lawbtn.no{opacity:.4}
+#modal.peek{background:none;align-items:flex-end;pointer-events:none}#modal.peek #mbox{pointer-events:auto;margin-bottom:8px;max-height:38vh;box-shadow:0 -6px 30px rgba(0,0,0,.7);border-color:#ff9a1f}
+#mseason{left:10px;right:auto}
 </style>
 </head>
 <body>
@@ -3120,7 +3174,7 @@ function hazardTick(dt){
     }
     if(lethal&&POL(polGroup(v),'hazard')!=='on')lethal=false;
     if(v===player){if(elimCD<=0&&lethal)eliminatePlayer();}
-    else if(v.ai&&!v.fell&&lethal){v.fell=true;v.ai.dead=true;(hazardTick.gone||(hazardTick.gone=[])).push(v);if(v.ai.cop){window.__copLost=(window.__copLost||0)+1;if(Math.hypot(v.x-player.x,v.y-player.y)<900)toast('🚓 Police unit fell – it is out of this chase');}}
+    else if(v.ai&&!v.fell&&lethal){v.fell=true;if(typeof polBonus==='function')polBonus(v,'lost');v.ai.dead=true;(hazardTick.gone||(hazardTick.gone=[])).push(v);if(v.ai.cop){window.__copLost=(window.__copLost||0)+1;if(Math.hypot(v.x-player.x,v.y-player.y)<900)toast('🚓 Police unit fell – it is out of this chase');}}
   }
   if(hazardTick.gone&&hazardTick.gone.length){for(const v of hazardTick.gone){const i=vehicles.indexOf(v);if(i>0)vehicles.splice(i,1);for(let k=0;k<10;k++)parts.push({t:'s',x:v.x+(Math.random()-.5)*30,y:v.y+(Math.random()-.5)*30,vx:(Math.random()-.5)*60,vy:(Math.random()-.5)*60,r:8+Math.random()*8,life:.7,max:.7,dark:1});}hazardTick.gone.length=0;}
   /* cops knocked out stay out for this chase; they only return next round. If every unit is out, the player is free. */
@@ -3830,7 +3884,7 @@ function render(t,dt){
   drawShadows(vx0,vy0,vx1,vy1);
   if(skids.length){ctx.strokeStyle='rgba(15,15,15,.32)';ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();for(const k of skids){if(k[0]<vx0||k[0]>vx1||k[1]<vy0||k[1]>vy1)continue;ctx.moveTo(k[0],k[1]);ctx.lineTo(k[2],k[3]);}ctx.stroke();}
   for(const v of vehicles){if(v.roof||v.x<vx0-80||v.x>vx1+80||v.y<vy0-80||v.y>vy1+80)continue;drawVehicle(v,t);}
-  if(window.drawBubbles)drawBubbles(t);if(typeof raceDraw==='function')raceDraw(t);if(typeof condDraw==='function')condDraw();if(typeof turboDraw==='function')turboDraw(t);if(typeof botDraw==='function')botDraw();if(typeof boomDraw==='function'){const n=performance.now();boomDraw(Math.min(.05,(n-(boomDraw.l||n))/1000));boomDraw.l=n;}
+  if(window.drawBubbles)drawBubbles(t);if(typeof raceDraw==='function')raceDraw(t);if(typeof chDraw==='function')chDraw(t);if(typeof condDraw==='function')condDraw();if(typeof turboDraw==='function')turboDraw(t);if(typeof botDraw==='function')botDraw();if(typeof boomDraw==='function'){const n=performance.now();boomDraw(Math.min(.05,(n-(boomDraw.l||n))/1000));boomDraw.l=n;}
   for(const q of parts){
     const a=q.life/q.max;
     if(q.t==='s'){ctx.fillStyle=(q.dark?'rgba(35,35,35,':'rgba(225,225,225,')+(a*0.45)+')';ctx.beginPath();ctx.arc(q.x,q.y,q.r*(1+(1-a)*2.2),0,TAU);ctx.fill();}
@@ -4925,12 +4979,14 @@ function condDraw(){const p=player;if(!p||p.roof||p.air>0||p.wreck)return;const 
   ph=p.hp;c=clamp(c,0,100);
   if(Math.abs(c-condOf(p.vi))>0.001){condSet(p.vi,c);dirty++;}
   if(Math.round(c)!==pc){pc=Math.round(c);const b=VEH[p.vi],k=c/100;
-    window.PSPEC=Object.assign({},b,{max:b.max*(0.82+0.18*k),acc:b.acc*(0.8+0.2*k),turn:b.turn*(0.9+0.1*k)});
+    window.PSPEC0=Object.assign({},b,{max:b.max*(0.82+0.18*k),acc:b.acc*(0.8+0.2*k),turn:b.turn*(0.9+0.1*k)});lawApply();
     $('carname').textContent=b.name+' · 🔧'+pc+'%';}
   if(dirty>6){dirty=0;condSave();}
  },500);
  addEventListener('pagehide',condSave);}
 window.__cond={condOf,condSet};
+
+function lawApply(){const s=window.PSPEC0;if(!s)return;window.PSPEC=window.LAWON?Object.assign({},s,{max:Math.min(s.max,(typeof trafLimit==='function'?trafLimit():100)/0.3-12)}):s;}
 
 /* v0.59: handbrake tuning (used by the physics; saved per device) */
 const HBK_DEF={turn:1.5,brake:0.9,grip:1.3};let HBK=Object.assign({},HBK_DEF);
@@ -4953,19 +5009,34 @@ const POLR=[
  {id:'offroad',name:'Where it may drive',tip:'Security forces: may they leave the road to cut across grass, lots and sidewalks during a chase?',g:['sec'],v:[['roads','🛣','Roads only'],['any','🌍','Anywhere a car fits']]},
  {id:'hazard',name:'Cliffs & kill zones',tip:'Is this group knocked out when it falls off a cliff or enters an elimination zone?',g:['civ','sec','ply'],v:[['on','💀','Knocked out'],['off','🛡','Immune']]},
  {id:'destroyed',name:'When a player wrecks it',tip:'What happens to the player who destroys a vehicle of this group?',g:['civ','sec'],v:[['none','➖','Nothing'],['wanted','⭐','+1 wanted star']]},
+ {id:'bonus',name:'Turbo bonus when it is taken out',tip:'When a vehicle of this group is lost because of the player – wrecked, exploded, fell off a cliff, drowned or left the map during a chase – the player gets a full turbo tank.',g:['civ','sec'],v:[['off','➖','No bonus'],['full','⚡','Full turbo']]},
  {id:'yield',name:'Others clear the way',tip:'Do civilian cars slow down and let this group pass when its siren is on?',g:['sec','ply'],v:[['on','🚨','Traffic gives way'],['off','➖','Traffic ignores it']]},
  {id:'traffic',name:'Traffic law (Driver mode)',tip:'Speeding, wrong side of the road, driving off the road and careless crashes give tickets and licence points (12 = suspension + police chase). Off = the old rule: speeding brings the police at once.',g:['ply'],v:[['on','🎫','Tickets & points'],['off','🚔','Instant chase']]},
  {id:'turbo',name:'Turbo boost',tip:'May players use the turbo (Shift / ⚡ button)?',g:['ply'],v:[['on','⚡','Allowed'],['off','🚫','Disabled']]},
  {id:'avoid',name:'Avoids contact',tip:'Does this group brake to avoid touching other vehicles?',g:['civ','sec'],v:[['on','🤝','Keeps distance'],['off','💥','Pushes through']]}];
-const POLDEF={offroad:{sec:'any'},hazard:{civ:'on',sec:'on',ply:'on'},destroyed:{civ:'none',sec:'none'},yield:{sec:'on',ply:'off'},avoid:{civ:'on',sec:'on'},turbo:{ply:'on'},traffic:{ply:'on'}};
+const POLDEF={offroad:{sec:'any'},hazard:{civ:'on',sec:'on',ply:'on'},destroyed:{civ:'none',sec:'none'},yield:{sec:'on',ply:'off'},avoid:{civ:'on',sec:'on'},bonus:{civ:'off',sec:'full'},turbo:{ply:'on'},traffic:{ply:'on'}};
 const POLMODES=[['base','Base rules'],['race','During a race']];
 let POLICY={base:JSON.parse(JSON.stringify(POLDEF)),race:{}};
-try{const s=JSON.parse(localStorage.getItem('cd:policy')||'null');if(s&&s.base){for(const r in POLDEF)POLICY.base[r]=Object.assign({},POLDEF[r],s.base[r]||{});POLICY.race=s.race||{};}}catch(_){}
-function polSave(){try{localStorage.setItem('cd:policy',JSON.stringify(POLICY));}catch(_){}}
+/* The policy is the game's rule book: players cannot change it. Order: built-in defaults -> the server's POLICY_JSON -> (admins only) their own test edits. */
+window.ISADMIN=false;
+function polSet(s){if(!s||!s.base)return;const b=JSON.parse(JSON.stringify(POLDEF));for(const r in POLDEF)b[r]=Object.assign({},POLDEF[r],s.base[r]||{});POLICY={base:b,race:s.race||{}};}
+function polLocal(){try{polSet(JSON.parse(localStorage.getItem('cd:policy')||'null'));}catch(_){}}
+if(/^https?:/.test(location.protocol))fetch('/policy').then(r=>r.json()).then(s=>{window.POLSRV=s;if(!window.ISADMIN)polSet(s);}).catch(()=>{});
+function polAdmin(on){window.ISADMIN=!!on;if(on)polLocal();else if(window.POLSRV)polSet(window.POLSRV);document.querySelectorAll('.admonly').forEach(e=>e.style.display=on?'':'none');}
+if(location.protocol==='file:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname))setTimeout(()=>polAdmin(true),60);
+function polSave(){if(!window.ISADMIN)return;try{localStorage.setItem('cd:policy',JSON.stringify(POLICY));}catch(_){}}
 function polMode(){return (typeof RC!=='undefined'&&RC.st!=='idle'&&RC.st!=='done')?'race':'base';}
 function POL(g,r){const m=polMode();if(m!=='base'){const o=POLICY[m][r];if(o&&o[g])return o[g];}const b=POLICY.base[r];return (b&&b[g])||(POLDEF[r]&&POLDEF[r][g]);}
 function polGroup(v){return (v===player||v.remote||v.bot)?'ply':(v.ai&&(v.ai.cop||v.ai.mission))?'sec':'civ';}
+function polBonus(v,how){
+  if(!v||!v.ai||v._bon||mode!=='game')return;
+  const linked=v.hw===player||(v.ai.cop&&(v.ai.chase||(typeof wanted!=='undefined'&&wanted>0)));if(!linked)return;
+  const g=polGroup(v);if(POL(g,'bonus')!=='full'||typeof TB==='undefined')return;
+  v._bon=1;TB.fuel=1;if(typeof ST!=='undefined'&&ST)ST.takedowns=(ST.takedowns||0)+1;
+  toast('⚡ '+(g==='sec'?'Security unit':'Vehicle')+' '+(how||'taken out')+' – turbo refilled to the max!');
+}
 function polWreck(v){
+  if(v&&v.ai&&!v.wreck)polBonus(v,'wrecked');
   if(!v.ai||v.wreck||typeof wanted==='undefined')return;
   if(v.hw!==player&&!(v.ai.cop&&v.ai.chase))return;
   if(POL(polGroup(v),'destroyed')==='wanted'&&wanted<3){setWanted(wanted+1);toast('⭐ Wanted level up – you wrecked a '+(polGroup(v)==='sec'?'security vehicle':'civilian car'));}
@@ -4977,6 +5048,7 @@ function polYield(v){
   return false;
 }
 function polOpen(){
+  if(!window.ISADMIN){toast('The policy is set by the ViRally team');return;}
   let layer=polOpen.layer||'base';
   const draw=()=>{
     let h='<p class="muted">One table for the whole game. Tap an icon to change a rule; hover or long-press for an explanation. "During a race" only lists what should be different while a race is running.</p>';
@@ -4989,12 +5061,13 @@ function polOpen(){
         h+='<td>'+(layer!=='base'?'<button data-r="'+r.id+'" data-g="'+g[0]+'" data-v="" class="pv'+(cur===''?' on':'')+'" title="Same as base rules">＝</button>':'')+
           r.v.map(o=>'<button data-r="'+r.id+'" data-g="'+g[0]+'" data-v="'+o[0]+'" class="pv'+(cur===o[0]?' on':'')+'" title="'+o[2]+'">'+o[1]+'</button>').join('')+'</td>';}
       h+='</tr>';}
-    h+='</table><div class="row"><button id="polReset" class="danger">Reset to defaults</button></div>';
-    modal('⚖ Policy – who may do what',h);
+    h+='</table><div class="row"><button id="polCopy">📋 Copy policy JSON (for the server)</button><button id="polReset" class="danger">Reset to defaults</button></div><p class="muted">Admin only. Your edits apply on this device for testing. To publish them to every player, paste the copied JSON into the server variable POLICY_JSON.</p>';
+    modal('⚖ Policy editor (admin) – who may do what',h);
     document.querySelectorAll('#mbody .polL button').forEach(b=>b.onclick=()=>{layer=polOpen.layer=b.dataset.l;draw();});
     document.querySelectorAll('#mbody .pv').forEach(b=>b.onclick=()=>{const d=b.dataset;
       if(layer==='base')POLICY.base[d.r][d.g]=d.v;else{const o=POLICY[layer][d.r]||(POLICY[layer][d.r]={});if(d.v)o[d.g]=d.v;else delete o[d.g];}
       polSave();draw();});
+    $('polCopy').onclick=()=>{const t=JSON.stringify(POLICY);try{navigator.clipboard.writeText(t).then(()=>toast('Policy JSON copied'),()=>prompt('Copy:',t));}catch(_){prompt('Copy:',t);}};
     $('polReset').onclick=()=>{POLICY={base:JSON.parse(JSON.stringify(POLDEF)),race:{}};polSave();draw();};
   };draw();
 }
@@ -5014,7 +5087,7 @@ function trafOn(){return typeof POL!=='function'||POL('ply','traffic')!=='off';}
 function trafTicket(k,val){
   if(!trafOn()||(typeof wanted!=='undefined'&&wanted>0))return;
   const now=performance.now()/1000;if(TRF.cd[k]&&now<TRF.cd[k])return;TRF.cd[k]=now+6;
-  const t=TRT[k];TRF.pts+=t.pts;TRF.fine+=t.fine;TRF.cleanT=0;TRF.list.unshift({k,val,at:Date.now()});TRF.list.length=Math.min(TRF.list.length,20);
+  if(window.lawOff)lawOff('You broke the law');const t=TRT[k];TRF.pts+=t.pts;TRF.fine+=t.fine;TRF.cleanT=0;TRF.list.unshift({k,val,at:Date.now()});TRF.list.length=Math.min(TRF.list.length,20);
   if(typeof ST!=='undefined'&&ST){ST.tickets=(ST.tickets||0)+1;}
   toast('🎫 '+t.ic+' '+t.n+(val?' ('+val+' km/h)':'')+' – ₪'+t.fine+', +'+t.pts+' points ('+Math.min(TRF.pts,TRF_MAX)+'/'+TRF_MAX+')');
   if(TRF.pts>=TRF_MAX){TRF.pts=0;setTimeout(()=>{toast('🚫 Licence suspended – '+TRF_MAX+' points! The police are coming');setWanted(Math.max(1,wanted));},900);}
@@ -5040,13 +5113,15 @@ function trafTick(dt){
   TRF.offT=off?TRF.offT+dt:Math.max(0,TRF.offT-dt*2);
   if(TRF.offT>1.4){trafTicket('off');TRF.offT=0;}
   /* clean driving slowly removes points */
-  if(!wrong&&!off&&kmh>15&&kmh<=100){TRF.cleanT+=dt;if(TRF.cleanT>45&&TRF.pts>0){TRF.pts--;TRF.cleanT=0;trafSave();toast('😇 Clean driving – one licence point removed ('+TRF.pts+'/'+TRF_MAX+')');}}
+  if(!wrong&&!off&&kmh>15&&kmh<=100){TRF.cleanT+=dt;if(TRF.cleanT>(window.LAWON?22:45)&&TRF.pts>0){TRF.pts--;TRF.cleanT=0;trafSave();toast('😇 Clean driving – one licence point removed ('+TRF.pts+'/'+TRF_MAX+')');}}
   trafHud();
 }
 setInterval(()=>trafTick(0.25),250);
 setTimeout(()=>{try{const e=document.createElement('span');e.id='trfpts';e.title='Licence points – '+TRF_MAX+' means suspension and a police chase';$('stars').after(e);trafHud();}catch(e){console.error(e);}},0);
 window.__traf={TRF,trafTicket,trafRoadDir,get CELL(){return CELL;}};
 window.trafOn=trafOn;window.trafTicket=trafTicket;
+
+function trafLimit(){return 100;}  /* km/h – one limit for now; per-area limits plug in here */
 
 /* ---------- v0.60: turbo boost – Shift / ⚡ button; fuel refills with time, clean driving and race checkpoints; exhaust flames scale with how fast/luxurious the car is ---------- */
 const TB={fuel:1,on:false,want:false,last:0,cleanT:0,ph:100,fl:[]};
@@ -5312,6 +5387,105 @@ function raceTeams(rk,tot){const T={A:[],B:[]};for(const x of rk)if(x.team)T[x.t
   const f=v=>v<1e8?v.toFixed(1)+'s (both in)':'not finished';
   return '<h3 style="margin-top:10px">'+win+'</h3><div><span>💛 You + partner</span><b>'+f(A)+'</b></div><div><span>💙 Rivals</span><b>'+f(B)+'</b></div>';}
 
+/* ---------- v0.72: seasonal challenges (one engine, three themes): Hanukkah menorah, Christmas gifts, New Year 2027 countdown ---------- */
+const CHT={
+ hanukkah:{n:'Hanukkah – light the menorah',ic:'🕎',col:'#ffd54a',N:8,ordered:true,fragile:true,
+  how:'Pick up the flame at the Shamash, then light all 8 candles in order. A hard crash blows your flame out – go back to the Shamash to relight it.',
+  first:'🔥 Shamash',item:'🕯',done:'🔥',win:'🕎 All 8 candles are lit – Happy Hanukkah!'},
+ xmas:{n:'Christmas – gift run',ic:'🎄',col:'#5dca6a',N:8,ordered:false,final:true,
+  how:'Collect all 8 gifts in any order, then bring them to the tree.',
+  first:'🎄 Tree',item:'🎁',done:'✅',win:'🎄 All gifts are under the tree – Merry Christmas!'},
+ ny:{n:'New Year 2027 – midnight countdown',ic:'🎆',col:'#7ec8ff',N:12,ordered:true,countdown:true,
+  how:'Reach all 12 clock points in order before the countdown hits zero. Every point sets off fireworks.',
+  first:'',item:'🕛',done:'🎆',win:'🎆 Midnight! Happy New Year 2027!'}};
+const CHG={on:false,id:null,pts:[],i:0,flame:false,have:0,t:0,left:0,ph:100,R:120};
+function chBest(id){try{return +(localStorage.getItem('cd:ch:'+id)||0)||null;}catch(_){return null;}}
+function chPick(n){
+  const L=[];for(let k=0;k<roadList.length;k+=2)L.push([roadList[k]*CELL+CELL/2,roadList[k+1]*CELL+CELL/2]);
+  if(L.length<n+2)return null;const p=player;
+  /* first point: a road cell near the player, the rest spread far apart */
+  let f=L[0],fd=1e9;for(const c of L){const d=Math.abs(Math.hypot(c[0]-p.x,c[1]-p.y)-420);if(d<fd){fd=d;f=c;}}
+  const pts=[f];
+  while(pts.length<n+1){let best=null,bd=-1;for(let t=0;t<40;t++){const c=L[Math.random()*L.length|0];let d=1e9;for(const q of pts)d=Math.min(d,Math.hypot(q[0]-c[0],q[1]-c[1]));if(d>bd){bd=d;best=c;}}pts.push(best);}
+  const o=[pts[0]],rest=pts.slice(1);
+  while(rest.length){const l=o[o.length-1];let bi=0,bd=1e9;rest.forEach((q,i)=>{const d=Math.hypot(q[0]-l[0],q[1]-l[1]);if(d<bd){bd=d;bi=i;}});o.push(rest.splice(bi,1)[0]);}
+  return o.map(q=>({x:q[0],y:q[1],done:false}));
+}
+function chStart(id){
+  if(mode!=='game'){$('go').click();setTimeout(()=>chStart(id),450);return;}
+  if(typeof RC!=='undefined'&&RC.st!=='idle'&&RC.st!=='done'){toast('Finish or stop the race first');return;}
+  const T=CHT[id],pts=chPick(T.N);if(!pts){toast('This map has too few roads for the challenge');return;}
+  Object.assign(CHG,{on:true,id,pts,i:0,flame:false,have:0,t:0,ph:player.hp});
+  if(T.countdown){let len=0;for(let k=1;k<pts.length;k++)len+=Math.hypot(pts[k].x-pts[k-1].x,pts[k].y-pts[k-1].y);CHG.left=Math.round(len/300*1.5+25);pts[0].done=true;}
+  $('modal').style.display='none';if(window.PAUSED&&window.togglePause)togglePause();
+  toast(T.ic+' '+T.n+' – go!');
+}
+function chStop(){CHG.on=false;$('chhud').style.display='none';}
+function chHit(k){const T=CHT[CHG.id],q=CHG.pts[k];
+  if(typeof boomAt==='function'&&(T.id!=='x'))boomAt(q.x,q.y,T.countdown?200:90);
+  if(typeof tbGain==='function')tbGain(0.12);}
+function chTick(dt){
+  if(!CHG.on)return;if(mode!=='game'){chStop();return;}if(window.PAUSED)return;
+  const T=CHT[CHG.id],p=player,P=CHG.pts,near=k=>Math.hypot(p.x-P[k].x,p.y-P[k].y)<CHG.R;
+  CHG.t+=dt;
+  if(T.fragile){
+    if(CHG.flame&&p.hp<CHG.ph-8){CHG.flame=false;toast('💨 Your flame went out! Back to the Shamash');}
+    if(!CHG.flame&&near(0)){CHG.flame=true;P[0].done=true;toast('🔥 You carry the flame – light candle '+(CHG.i+1));}
+    if(CHG.flame&&CHG.i<T.N&&near(CHG.i+1)){P[CHG.i+1].done=true;CHG.i++;chHit(CHG.i);if(CHG.i<T.N)toast('🕯 Candle '+CHG.i+' of 8 is lit');}
+    if(CHG.i>=T.N)return chWin();
+  }else if(T.ordered){
+    if(near(CHG.i+1)){P[CHG.i+1].done=true;CHG.i++;chHit(CHG.i);}
+    if(CHG.i>=T.N)return chWin();
+    CHG.left-=dt;if(CHG.left<=0){chStop();modal('🎆 Time is up','<p>You reached '+CHG.i+' of '+T.N+' points.</p><div class="row"><button id="chAgain">Try again</button></div>');$('chAgain').onclick=()=>chStart(CHG.id);return;}
+  }else{
+    for(let k=1;k<=T.N;k++)if(!P[k].done&&near(k)){P[k].done=true;CHG.have++;chHit(k);toast('🎁 Gift '+CHG.have+' of '+T.N);}
+    if(CHG.have>=T.N&&near(0))return chWin();
+  }
+  CHG.ph=p.hp;
+  const h=$('chhud'),cnt=T.ordered?CHG.i:CHG.have;let s=T.ic+' ';for(let k=0;k<T.N;k++)s+=k<cnt?T.done:'▫';
+  s+=' · '+(T.countdown?'⏳ '+Math.max(0,CHG.left).toFixed(0)+'s':CHG.t.toFixed(1)+'s');
+  if(T.fragile)s+=CHG.flame?' · 🔥':' · no flame';
+  h.style.display='block';h.textContent=s;h.style.borderColor=T.col;h.classList.toggle('warn',!!T.countdown&&CHG.left<15);
+}
+function chWin(){const T=CHT[CHG.id],t=CHG.t,b=chBest(CHG.id),rec=!b||t<b;if(rec)try{localStorage.setItem('cd:ch:'+CHG.id,t.toFixed(1));}catch(_){}
+  const end=CHG.pts[T.final?0:T.N];for(let k=0;k<5;k++)setTimeout(()=>{if(typeof boomAt==='function')boomAt(end.x+(Math.random()-.5)*300,end.y+(Math.random()-.5)*300,220);},k*260);
+  const id=CHG.id;chStop();
+  setTimeout(()=>{modal(T.win,'<div class="str"><span>⏱ Your time</span><b>'+t.toFixed(1)+'s</b></div><div class="str"><span>🏆 Best</span><b>'+(rec?t:b).toFixed(1)+'s'+(rec?' – new record!':'')+'</b></div><div class="row"><button id="chAgain">Play again</button></div>');$('chAgain').onclick=()=>chStart(id);},1500);}
+function chDraw(t){
+  if(!CHG.on)return;const T=CHT[CHG.id],P=CHG.pts,p=player;let tg=[];
+  if(T.fragile)tg=[CHG.flame?CHG.i+1:0];else if(T.ordered)tg=[CHG.i+1];else{for(let k=1;k<=T.N;k++)if(!P[k].done)tg.push(k);if(!tg.length)tg=[0];}
+  ctx.save();ctx.textAlign='center';
+  P.forEach((q,k)=>{
+    const act=tg.indexOf(k)>=0,isFirst=k===0;if(isFirst&&!T.first)return;
+    if(!T.fragile&&q.done&&!isFirst)return;
+    const r=CHG.R*(act?1+0.08*Math.sin(t*6):1);
+    if(act){ctx.fillStyle=T.col+'33';ctx.beginPath();ctx.arc(q.x,q.y,r,0,TAU);ctx.fill();ctx.strokeStyle=T.col;ctx.lineWidth=9;ctx.beginPath();ctx.arc(q.x,q.y,r,0,TAU);ctx.stroke();}
+    if(T.fragile){ /* a candle; lit ones keep burning on the map */
+      const lit=q.done,hgt=isFirst?86:62;ctx.fillStyle=isFirst?'#ffd54a':'#f4f1e6';ctx.fillRect(q.x-9,q.y-hgt/2+12,18,hgt);
+      if(lit){const f=16+Math.sin(t*14+k)*4;const g=ctx.createRadialGradient(q.x,q.y-hgt/2,2,q.x,q.y-hgt/2,60);g.addColorStop(0,'rgba(255,220,120,.9)');g.addColorStop(1,'rgba(255,150,30,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(q.x,q.y-hgt/2,60,0,TAU);ctx.fill();
+        ctx.fillStyle='#ff9a1f';ctx.beginPath();ctx.ellipse(q.x,q.y-hgt/2,8,f,0,0,TAU);ctx.fill();ctx.fillStyle='#fff3b0';ctx.beginPath();ctx.ellipse(q.x,q.y-hgt/2+4,4,f*.5,0,0,TAU);ctx.fill();}
+      ctx.font='900 30px sans-serif';ctx.lineWidth=5;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.fillStyle='#fff';const lb=isFirst?'Shamash':String(k);ctx.strokeText(lb,q.x,q.y+hgt/2+44);ctx.fillText(lb,q.x,q.y+hgt/2+44);
+    }else{ctx.font='64px sans-serif';const lb=isFirst?'🎄':(T.ordered?(act?T.item:''):T.item);if(lb)ctx.fillText(lb,q.x,q.y+22);
+      if(T.ordered&&act){ctx.font='900 30px sans-serif';ctx.lineWidth=5;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.fillStyle='#fff';ctx.strokeText(k+'/'+T.N,q.x,q.y+70);ctx.fillText(k+'/'+T.N,q.x,q.y+70);}}
+  });
+  /* arrow to the nearest active target */
+  let bq=null,bd=1e9;for(const k of tg){const d=Math.hypot(P[k].x-p.x,P[k].y-p.y);if(d<bd){bd=d;bq=P[k];}}
+  if(bq&&bd>260){const a=Math.atan2(bq.y-p.y,bq.x-p.x);ctx.translate(p.x+Math.cos(a)*130,p.y+Math.sin(a)*130);ctx.rotate(a);ctx.fillStyle=T.col;ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(26,0);ctx.lineTo(-14,-18);ctx.lineTo(-6,0);ctx.lineTo(-14,18);ctx.closePath();ctx.fill();ctx.stroke();}
+  ctx.restore();
+}
+function chOpen(){
+  let h='<p class="muted">Seasonal challenges – solo, against the clock. Your best time is kept on this device.</p>';
+  for(const id in CHT){const T=CHT[id],b=chBest(id);h+='<div class="chc" style="border-color:'+T.col+'"><div><b>'+T.ic+' '+T.n+'</b><br><small>'+T.how+'</small><br><small>🏆 Best: '+(b?b.toFixed(1)+'s':'–')+'</small></div><button data-ch="'+id+'" style="background:'+T.col+'">▶</button></div>';}
+  modal('🎉 Challenges',h);document.querySelectorAll('#mbody [data-ch]').forEach(b=>b.onclick=()=>chStart(b.dataset.ch));
+}
+setInterval(()=>chTick(0.1),100);
+setTimeout(()=>{try{
+  const h=document.createElement('div');h.id='chhud';document.body.appendChild(h);
+  const m=$('mmain');if(m){const b=document.createElement('button');b.id='mseason';b.className='admonly';b.type='button';b.style.display=window.ISADMIN?'':'none';b.innerHTML='⚖ <span>Policy editor</span>';b.title='Admin: edit the game policy';b.onclick=polOpen;m.appendChild(b);}
+  const q=document.createElement('button');q.className='pgl';q.textContent='🎉 Challenges';q.onclick=chOpen;const g=$('p_gq');g.parentNode.insertBefore(q,g.nextSibling);
+}catch(e){console.error(e);}},30);
+window.__ch={CH:CHG,chStart,chOpen};
+
 /* ---------- v0.63: personal driving log – real driving time, distance, top speed and what happened on the way (per Telegram name or per device) ---------- */
 const STK=()=>'cd:stats:'+(window.TGS&&MP.name?MP.name:'device');
 let ST=null;
@@ -5344,7 +5518,7 @@ function stOpen(){stSave();const r=(i,n,v)=>'<div class="str"><span>'+i+' '+n+'<
    '<p class="muted">Counted only while you are in the game and not paused. '+(window.TGS?'Saved for your Telegram name on this device.':'Log in with Telegram to keep a log under your name.')+'</p>'+
    r('🚗','Real driving time',hm(ST.drive))+r('⏸','Standing still',hm(ST.idle))+r('📈','Moving share',tot?Math.round(ST.drive/tot*100)+'%':'–')+
    r('🛣','Distance',ST.km.toFixed(1)+' km')+r('🏎','Top speed',ST.top+' km/h')+r('😇','Clean, legal driving',hm(ST.clean))+
-   r('💥','Crashes',ST.crashes)+r('🎫','Traffic tickets',ST.tickets||0)+r('🪪','Licence points now',(typeof TRF!=='undefined'?TRF.pts:0)+'/12')+r('🔥','Vehicles wrecked',ST.wrecked)+r('⚡','Turbo boosts',ST.turbo)+
+   r('💥','Crashes',ST.crashes)+r('🎫','Traffic tickets',ST.tickets||0)+r('🪪','Licence points now',(typeof TRF!=='undefined'?TRF.pts:0)+'/12')+r('🔥','Vehicles wrecked',ST.wrecked)+r('🚓','Units taken out (turbo bonus)',ST.takedowns||0)+r('⚡','Turbo boosts',ST.turbo)+
    r('🚔','Busted',ST.busted)+r('😎','Escaped the police',ST.escaped)+r('💀','Eliminated',ST.elim)+
    r('🏁','Races finished',ST.races)+r('🏆','Races won',ST.wins)+r('⏱','Best race time',ST.best===null?'–':ST.best.toFixed(1)+'s')+
    '<div class="row"><button id="stReset" class="danger">Reset my log</button></div>');
@@ -5383,6 +5557,131 @@ setTimeout(()=>{try{const f=document.createElement('div');f.id='legal';f.innerHT
  const m=document.createElement('meta');m.name='copyright';m.content='© '+LEGAL_Y+' ViRally. All rights reserved.';document.head.appendChild(m);
  const q=document.createElement('button');q.className='pgl';q.textContent='⚖ Legal';q.onclick=()=>legalOpen('terms');const g=$('p_gq');g.parentNode.insertBefore(q,g.nextSibling);}catch(e){console.error(e);}},0);
 
+/* ---------- v0.70: main menu = a big V. Yellow track (selected car shows how it drives), blue drawers on the V arms, START at the tip ---------- */
+setTimeout(()=>{try{(function(){
+const menu=$('menu');
+const L=document.createElement('div');L.id='mmain';
+L.innerHTML='<canvas id="mtrack"></canvas><img id="mlogo" alt="ViRally"><div id="mcar"></div><div id="mdraw"></div>'+
+ '<button id="mstart" type="button" aria-label="Start driving"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a8780c"/><stop offset=".3" stop-color="#ffe89a"/><stop offset=".55" stop-color="#d9a520"/><stop offset=".8" stop-color="#fff0b0"/><stop offset="1" stop-color="#9a6c08"/></linearGradient><pattern id="vc" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#fff"/><rect width="4" height="4" fill="#111"/><rect x="4" y="4" width="4" height="4" fill="#111"/></pattern></defs><polygon points="16,26 35,26 50,62 65,26 84,26 50,94" fill="url(#vg)" stroke="#6b4c05" stroke-width="1"/><polygon points="8,10 32,10 36,26 12,26" fill="url(#vc)" stroke="#d9a520" stroke-width="1.5"/><polygon points="68,10 92,10 88,26 64,26" fill="url(#vc)" stroke="#d9a520" stroke-width="1.5"/></svg><small>START</small><b id="mgo">START</b></button>'+
+ '<div id="mpanel" role="dialog"><div id="mpHead"><b id="mpTitle"></b><button id="mpClose" type="button" aria-label="Close">✕</button></div><div id="mpBody"></div></div>';
+menu.appendChild(L);$('mlogo').src=window.LOGO||'';
+/* footer (terms etc.) stays as the only thing outside the V */
+const lg=$('legal');if(lg)L.appendChild(lg);
+/* drawers: [side, t along arm, icon, label, action | panel content node] */
+const keep={garage:$('demo'),map:$('mapsel'),mp:$('mp')};
+if(keep.mp)keep.mp.classList.remove('mphide');
+const ITEMS=[
+ ['L',-1,'🚗','Garage','garage'],['R',-1,'🗺','Map','map'],
+ ['L',.16,'✏','Map editor',()=>$('edbtn').click(),'Editor'],
+ ['L',.36,'🏁','Race vs bots',()=>$('botbtn').click(),'Bots'],
+ ['L',.56,'🌐','Multiplayer','mp','Online'],
+ ['R',.16,'📊','My driving',()=>$('stbtn').click(),'Stats'],
+ ['R',.36,'🎉','Challenges',()=>chOpen(),'Events'],
+ ['R',.56,'🅿','Handbrake',()=>{$('hbkbtn').click();$('modal').classList.add('peek');},'Brake']];
+const D=$('mdraw'),btns=[];
+for(const it of ITEMS){const b=document.createElement('button');b.type='button';b.className='mdr'+(it[1]<0?' flag':'')+' s'+it[0];b.innerHTML='<i>'+it[2]+'</i><span class="lf">'+it[3]+'</span><span class="ls">'+(it[5]||it[3])+'</span>';b.title=it[3];
+  b.onclick=()=>{b.classList.add('pull');setTimeout(()=>b.classList.remove('pull'),380);
+    if(typeof it[4]==='function')setTimeout(it[4],230);else openPanel(it[3],keep[it[4]],b);};
+  D.appendChild(b);btns.push([b,it]);}
+let panelNode=null;
+function openPanel(title,node,from){const p=$('mpanel');closePanel(true);if(!node)return;
+  $('mpTitle').textContent=title;$('mpBody').appendChild(node);node.style.display='';panelNode=node;
+  const r=from.getBoundingClientRect(),pr=L.getBoundingClientRect();p.style.transformOrigin=(r.left+r.width/2-pr.left)+'px '+(r.top+r.height/2-pr.top)+'px';
+  p.classList.remove('open');void p.offsetWidth;p.classList.add('open');
+  if(node.id==='demo'&&window.__demo)setTimeout(()=>{dispatchEvent(new Event('resize'));__demo.go(1);},340);}
+function closePanel(quiet){const p=$('mpanel');if(panelNode){park.appendChild(panelNode);panelNode=null;}p.classList.remove('open');}
+const park=document.createElement('div');park.style.display='none';L.appendChild(park);for(const k in keep)if(keep[k])park.appendChild(keep[k]);
+$('mpClose').onclick=()=>closePanel();
+let starting=false;
+function startSnd(){try{if(typeof muted!=='undefined'&&muted)return;const C=window.__mac||(window.__mac=new (window.AudioContext||window.webkitAudioContext)());if(C.state==='suspended')C.resume();const t=C.currentTime;
+  const o=C.createOscillator(),g=C.createGain();o.type='sawtooth';o.frequency.setValueAtTime(180,t);o.frequency.exponentialRampToValueAtTime(1400,t+.55);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.12,t+.1);g.gain.exponentialRampToValueAtTime(.001,t+.6);o.connect(g);g.connect(C.destination);o.start(t);o.stop(t+.62);
+  const n=C.sampleRate*.5|0,b=C.createBuffer(1,n,C.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);
+  const s2=C.createBufferSource(),f=C.createBiquadFilter(),g2=C.createGain();s2.buffer=b;f.type='bandpass';f.frequency.value=900+Math.random()*900;g2.gain.value=.5;s2.connect(f);f.connect(g2);g2.connect(C.destination);s2.start(t+.6);
+  const o2=C.createOscillator(),g3=C.createGain();o2.frequency.setValueAtTime(110,t+.6);o2.frequency.exponentialRampToValueAtTime(40,t+.9);g3.gain.setValueAtTime(.6,t+.6);g3.gain.exponentialRampToValueAtTime(.001,t+1);o2.connect(g3);g3.connect(C.destination);o2.start(t+.6);o2.stop(t+1.05);}catch(_){}}
+$('mstart').onclick=()=>{if(starting)return;starting=true;const b=$('mstart');b.classList.add('go');startSnd();
+  setTimeout(()=>{const r=b.getBoundingClientRect(),pr=L.getBoundingClientRect(),cx=r.left+r.width/2-pr.left,cy=r.top+r.height/2-pr.top;
+    for(let k=0;k<26;k++){const s=document.createElement('i');s.className='mspk';const a=Math.random()*6.283,d=60+Math.random()*150;s.style.left=cx+'px';s.style.top=cy+'px';s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',Math.sin(a)*d+'px');s.style.background=['#ffd54a','#fff3b0','#ff9a1f','#7ec8ff'][k%4];L.appendChild(s);setTimeout(()=>s.remove(),800);}},600);
+  setTimeout(()=>{$('go').click();b.classList.remove('go');starting=false;},1150);};
+/* ---- geometry ---- */
+const cv=$('mtrack'),g=cv.getContext('2d');let W=0,H=0,K=1,G=null;
+function geo(){const r=L.getBoundingClientRect();W=r.width;H=r.height;K=Math.min(devicePixelRatio||1,2);cv.width=W*K;cv.height=H*K;
+  const port=H>W*1.1,top=port?.3:.24,bot=port?.79:.75,side=port?.21:.25;
+  G={TL:[W*side,H*top],B:[W*.5,H*bot],TR:[W*(1-side),H*top],rw:Math.max(30,Math.min(W,H)*(port?.085:.08)),lw:Math.max(34,Math.min(W,H)*(port?.1:.095))};
+  const lw=port?Math.min(W*.3,H*.13):Math.min(W*.24,H*.2);Object.assign($('mlogo').style,{width:lw+'px',height:lw+'px',left:(W/2-lw/2)+'px',top:(port?H*.035:H*top-lw*.62)+'px'});
+  const st=Math.min(W*.17,H*.115);Object.assign($('mstart').style,{width:st+'px',height:st+'px',left:(W/2-st/2)+'px',top:(G.B[1]-st*.72)+'px'});
+  const dw=Math.min(W*(port?.31:.2),230);
+  for(const[b,it]of btns){const A=it[0]==='L'?G.TL:G.TR;let x,y;
+    if(it[1]<0){x=port?(it[0]==='L'?W*.25:W*.75):A[0];y=port?H*.19:A[1]-H*.06;}
+    else{x=A[0]+(G.B[0]-A[0])*it[1];y=A[1]+(G.B[1]-A[1])*it[1];}
+    const w=it[1]<0?dw*1.05:dw*(1-it[1]*(port?.3:.38));b.style.width=w+'px';b.style.left=(x-w/2)+'px';b.style.top=(y-22)+'px';
+    b.style.setProperty('--sk',(it[0]==='L'?-1:1)*Math.atan2(G.B[0]-A[0],G.B[1]-A[1])*57.3*(it[0]==='L'?-1:1)*.35+'deg');}
+  $('mcar').style.top=(port?H*.905:H*top+Math.min(W*.24,H*.2)*.45)+'px';
+  run.reset();}
+/* ---- the demo run: a closed loop road around the outside of the V ---- */
+const imgs={};const img=vi=>imgs[vi]||(imgs[vi]=Object.assign(new Image(),{src:VEH[vi].src}));
+const run={s:0,v:0,sk:[],slip:0,loop:null,reset(){this.v=0;this.sk=[];this.slip=0;this.loop=null;}};
+function nrm(x,y){const l=Math.hypot(x,y)||1;return [x/l,y/l];}
+function buildLoop(){const {TL,B,TR}=G,hw=G.rw*.95,d=hw+G.lw*.5+G.rw*.12,u1=nrm(B[0]-TL[0],B[1]-TL[1]),u2=nrm(TR[0]-B[0],TR[1]-B[1]),
+  nL=[-u1[1],u1[0]],nR=[-u2[1],u2[0]],P=[],add=(x,y)=>P.push([x,y]),
+  line=(a,b,n)=>{for(let k=0;k<=n;k++)add(a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n);},
+  arc=(c,a0,a1,via,r)=>{let da=a1-a0;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;
+    const mid=a0+da/2,ok=Math.cos(mid-via)>0;if(!ok)da=da>0?da-2*Math.PI:da+2*Math.PI;const n=Math.max(8,Math.abs(da)*14|0);for(let k=1;k<n;k++){const a=a0+da*k/n;add(c[0]+Math.cos(a)*r,c[1]+Math.sin(a)*r);}},
+  ang=v=>Math.atan2(v[1],v[0]),off=(p,n,k)=>[p[0]+n[0]*k,p[1]+n[1]*k];
+  const i1=off(TR,nR,-d),i2=off(TL,nL,-d);
+  /* inner apex = intersection of the two inner lines */
+  const den=u1[0]*u2[1]-u1[1]*u2[0],t=((i1[0]-i2[0])*u2[1]-(i1[1]-i2[1])*u2[0])/(den||1e-6),ap=[i2[0]+u1[0]*t,i2[1]+u1[1]*t];
+  line(off(TL,nL,d),off(B,nL,d),40);arc(B,ang(nL),ang(nR),Math.PI/2,d);line(off(B,nR,d),off(TR,nR,d),40);
+  arc(TR,ang(nR),ang([-nR[0],-nR[1]]),ang(u2),d);line(i1,ap,24);const apI=P.length-1;line(ap,i2,24);arc(TL,ang([-nL[0],-nL[1]]),ang(nL),ang([-u1[0],-u1[1]]),d);
+  const S=[0];for(let k=1;k<P.length;k++)S.push(S[k-1]+Math.hypot(P[k][0]-P[k-1][0],P[k][1]-P[k-1][1]));const T=S[S.length-1]+Math.hypot(P[0][0]-P[P.length-1][0],P[0][1]-P[P.length-1][1]);
+  /* curvature radius per point */
+  const R=P.map((p,k)=>{const a=P[(k-3+P.length)%P.length],b=P[(k+3)%P.length],ab=Math.hypot(b[0]-a[0],b[1]-a[1]),t1=Math.atan2(p[1]-a[1],p[0]-a[0]),t2=Math.atan2(b[1]-p[1],b[0]-p[0]);let dt=Math.abs(t2-t1);if(dt>Math.PI)dt=2*Math.PI-dt;return dt<1e-3?1e9:ab/dt;});
+  return {P,S,T,R,sAp:S[apI],sgn:(u2[0]*(-u1[1])-u2[1]*(-u1[0]))>0?1:-1};}
+function at(L,s){s=((s%L.T)+L.T)%L.T;let lo=0,hi=L.S.length-1;while(lo<hi){const m=(lo+hi+1)>>1;if(L.S[m]<=s)lo=m;else hi=m-1;}
+  const a=L.P[lo],b=L.P[(lo+1)%L.P.length],seg=Math.max(1e-6,(L.S[lo+1]??L.T)-L.S[lo]),k=(s-L.S[lo])/seg;return {x:a[0]+(b[0]-a[0])*k,y:a[1]+(b[1]-a[1])*k,a:Math.atan2(b[0]-a[0],-(b[1]-a[1])),i:lo};}
+function spec(){const d=VEH[selIdx]||VEH[0],c=typeof condOf==='function'?condOf(selIdx)/100:1;return {d,max:d.max*(.82+.18*c),acc:d.acc*(.8+.2*c),turn:d.turn*(.9+.1*c)};}
+function step(dt){const S=spec(),sc=Math.min(W,H)/700,L=run.loop||(run.loop=buildLoop());
+  const vmax=S.max*sc*1.1,acc=S.acc*sc*1.25,brk=acc*2.2,grip=(S.turn/2.8)*vmax*vmax*.0042;
+  /* look ahead for the slowest corner within braking distance */
+  const hb=(typeof HBK!=='undefined')?HBK:{turn:1.5,brake:.9,grip:1.3},spinN=clamp((hb.turn-1)/1.5,0,1),brkN=clamp(hb.brake/3,0,1),gripN=clamp(hb.grip/4,0,1);
+  const sm=((run.s%L.T)+L.T)%L.T,dAp=sm-L.sAp,zin=G.lw*3,zout=G.lw*1.6,inHB=dAp>-zin&&dAp<zout;run.hbz=[L.sAp-zin,L.sAp+zout];
+  let need=vmax;const look=run.v*run.v/(2*brk)+20;for(let q=0;q<look;q+=8){const p=at(L,run.s+q);let r=L.R[p.i];const dq=((run.s+q)%L.T)-L.sAp;if(dq>-G.lw&&dq<G.lw)r=Math.max(r,G.lw*(1.4+spinN*4));const lim=Math.sqrt(grip*r);const al=Math.sqrt(lim*lim+2*brk*q);if(al<need)need=al;}
+  const here=at(L,run.s),rh=L.R[here.i],limH=Math.sqrt(grip*rh);
+  if(run.v>need)run.v=Math.max(need,run.v-brk*dt);else run.v=Math.min(vmax,run.v+acc*dt*(1-run.v/vmax*.55));
+  run.s+=run.v*dt;
+  const over=Math.max(0,run.v*run.v/Math.max(rh,1)-grip)/grip;run.slip+=((Math.min(.9,over*.8+(rh<1e8?(2.9-S.turn)*.12:0)))-run.slip)*Math.min(1,dt*5);
+  if(inHB&&dAp>-G.lw*1.2){run.v=Math.max(vmax*.12,run.v-brk*brkN*1.4*dt);run.hbS=(run.hbS||0)+(((.5+1.1*spinN)*(1.25-gripN))-(run.hbS||0))*Math.min(1,dt*9);}
+  else run.hbS=(run.hbS||0)*Math.exp(-dt*(1.5+gripN*9));
+  run.hbOn=inHB&&dAp>-G.lw*1.2;
+  const p=at(L,run.s);if(run.hbS>.25)run.sk.push([p.x,p.y]);if(run.slip>.18&&Math.random()<.7)run.sk.push([p.x,p.y]);if(run.sk.length>260)run.sk.shift();
+  run.boost=run.v>vmax*.85&&rh>1e8;
+  return {x:p.x,y:p.y,a:p.a+run.slip*.7+(run.hbS||0)*L.sgn,kmh:Math.round(run.v/sc/1.1*.3)};}
+function drawTrack(){const L=run.loop||(run.loop=buildLoop());g.save();g.lineJoin='round';g.lineCap='round';
+  /* the V itself (where the drawers sit) */
+  g.beginPath();g.moveTo(G.TL[0],G.TL[1]);g.lineTo(G.B[0],G.B[1]);g.lineTo(G.TR[0],G.TR[1]);g.strokeStyle='rgba(59,130,246,.35)';g.lineWidth=G.rw*1.9+4;g.stroke();g.strokeStyle='#141b26';g.lineWidth=G.rw*1.9;g.stroke();
+  /* loop road around it */
+  const loop=()=>{g.beginPath();L.P.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();};
+  loop();g.strokeStyle='#ffd54a';g.lineWidth=G.lw+6;g.stroke();loop();g.strokeStyle='#262b33';g.lineWidth=G.lw;g.stroke();
+  g.setLineDash([G.lw*.22,G.lw*.2]);g.strokeStyle='rgba(255,255,255,.4)';g.lineWidth=2;
+  for(const o of[-G.lw/6,G.lw/6]){g.beginPath();const n=L.P.length;for(let k=0;k<=n;k++){const a=L.P[(k-1+n)%n],b=L.P[(k+1)%n],q=L.P[k%n],t=nrm(b[0]-a[0],b[1]-a[1]),x=q[0]-t[1]*o,y=q[1]+t[0]*o;k?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();}g.setLineDash([]);
+  if(run.hbz){g.strokeStyle=run.hbOn?'rgba(255,140,30,.45)':'rgba(255,140,30,.2)';g.lineWidth=G.lw*.86;g.lineCap='butt';g.beginPath();for(let s=run.hbz[0];s<=run.hbz[1];s+=6){const q=at(L,s);s===run.hbz[0]?g.moveTo(q.x,q.y):g.lineTo(q.x,q.y);}g.stroke();g.setLineDash([]);
+    }
+  g.fillStyle='rgba(15,15,15,.55)';for(const s of run.sk){g.beginPath();g.arc(s[0],s[1],G.lw*.07,0,7);g.fill();}
+  g.restore();}
+let last=performance.now(),raf=0;
+function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(mode==='menu'&&menu.style.display!=='none'){if(!G||!W)geo();g.setTransform(K,0,0,K,0,0);g.clearRect(0,0,W,H);drawTrack();
+    const c=step(dt),S=spec(),im=img(selIdx),Lc=G.lw*1.05,Wc=Lc*S.d.w/S.d.h;
+    g.save();g.translate(c.x,c.y);g.rotate(c.a);if(run.boost&&typeof tbTier==='function'&&tbTier(selIdx)>.45){const f=Lc*(.5+Math.random()*.4);const gr=g.createLinearGradient(0,Lc/2,0,Lc/2+f);gr.addColorStop(0,'rgba(255,240,180,.95)');gr.addColorStop(.4,'rgba(255,140,30,.8)');gr.addColorStop(1,'rgba(255,60,0,0)');g.fillStyle=gr;g.beginPath();g.moveTo(-Wc*.18,Lc/2-2);g.quadraticCurveTo(0,Lc/2+f*1.2,Wc*.18,Lc/2-2);g.fill();}g.fillStyle='rgba(0,0,0,.4)';g.fillRect(-Wc/2+3,-Lc/2+4,Wc,Lc);if(im.complete&&im.naturalWidth)g.drawImage(im,-Wc/2,-Lc/2,Wc,Lc);
+    if(typeof condDirt==='function')condDirt(g,Wc,Lc,selIdx,condOf(selIdx));g.restore();
+    $('mcar').innerHTML='<b>'+esc(S.d.name)+'</b> · '+c.kmh+' km/h'+(run.hbOn?' · 🅿':'');}
+  raf=requestAnimationFrame(frame);}
+addEventListener('resize',()=>{G=null;});
+/* car changes in the Garage restart the run */
+const so=window.renderSel;if(typeof renderSel==='function'){const o=renderSel;renderSel=function(){o.apply(this,arguments);run.reset();};}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel();});
+geo();raf=requestAnimationFrame(frame);window.__mm={run,geo,openPanel};
+})();}catch(e){console.error(e);}},0);
+
 /* ---------- v0.46: optional Telegram login (QR on desktop, button on the phone) ---------- */
 window.TGS='';
 (function(){
@@ -5392,7 +5691,7 @@ window.TGS='';
   let who='',poll=0;
   function draw(){
     box.innerHTML=who?'<span style="color:#7fe08a;font-weight:700">✓ Telegram: '+esc(who)+'</span> <button id="tgOut" type="button">Log out</button>':'<button id="tgIn" type="button" style="background:#2aabee;color:#fff;border:0;border-radius:9px;padding:7px 14px;font-weight:700;cursor:pointer">✈ Log in with Telegram</button>';
-    if(who){$('tgOut').onclick=()=>{who='';window.TGS='';try{localStorage.removeItem('cd:tg');}catch(_){}$('mpName').readOnly=false;draw();};$('mpName').value=who;$('mpName').readOnly=true;MP.name=who;}
+    if(who){$('tgOut').onclick=()=>{who='';window.TGS='';polAdmin(false);try{localStorage.removeItem('cd:tg');}catch(_){}$('mpName').readOnly=false;draw();};$('mpName').value=who;$('mpName').readOnly=true;MP.name=who;}
     else $('tgIn').onclick=login;
   }
   function login(){
@@ -5409,7 +5708,7 @@ window.TGS='';
       poll=setInterval(()=>{
         if(!$('tgWait')||Date.now()-t0>5*60000){clearInterval(poll);if($('tgWait'))$('tgWait').textContent='Request expired – close and try again.';return;}
         post('/tg/poll',{token:r.token}).then(p=>{
-          if(p.ok){clearInterval(poll);who=p.name;window.TGS=p.s;try{localStorage.setItem('cd:tg',p.s);}catch(_){}closeModal();draw();toast('✓ Logged in as '+who);}
+          if(p.ok){clearInterval(poll);who=p.name;window.TGS=p.s;polAdmin(!!p.admin);try{localStorage.setItem('cd:tg',p.s);}catch(_){}closeModal();draw();toast('✓ Logged in as '+who);}
           else if(p.gone){clearInterval(poll);if($('tgWait'))$('tgWait').textContent='Cancelled or expired – close and try again.';}
         }).catch(()=>{});
       },1500);
@@ -5419,7 +5718,7 @@ window.TGS='';
   fetch('/tg/info').then(r=>r.json()).then(i=>{
     if(!i||!i.on)return;box.style.display='block';draw();
     let s='';try{s=localStorage.getItem('cd:tg')||'';}catch(_){}
-    if(s)post('/tg/me',{s}).then(m=>{if(m.ok){who=m.name;window.TGS=s;draw();}}).catch(()=>{});
+    if(s)post('/tg/me',{s}).then(m=>{if(m.ok){who=m.name;window.TGS=s;polAdmin(!!m.admin);draw();}}).catch(()=>{});
   }).catch(()=>{});
 })();
 
@@ -5476,7 +5775,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.69 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.76 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
@@ -5601,7 +5900,7 @@ info();setTimeout(()=>go(1),400);window.__demo={sel,go};
 
 /* v0.55: policy button – menu + pause menu */
 try{const b=document.createElement('button');b.id='polbtn';b.type='button';b.textContent='⚖ Policy';b.title='Rules for every group: civilians, security forces, players';b.onclick=polOpen;$('pick').insertBefore(b,$('vmenu').nextSibling);
-const q=document.createElement('button');q.className='pgl';q.textContent='⚖ Policy';q.onclick=()=>{polOpen();};const g=$('p_gq');g.parentNode.insertBefore(q,g.nextSibling);}catch(e){console.error(e);}
+const q=document.createElement('button');q.className='pgl admonly';q.style.display='none';q.textContent='⚖ Policy (admin)';q.onclick=()=>{polOpen();};const g=$('p_gq');g.parentNode.insertBefore(q,g.nextSibling);}catch(e){console.error(e);}
 
 /* v0.59: handbrake settings button (menu + pause) and escape meter */
 try{const b=document.createElement('button');b.id='hbkbtn';b.type='button';b.textContent='🅿 Handbrake';b.title='Tune spin power, stopping force and rear grip';b.onclick=hbkOpen;$('polbtn').after(b);
@@ -5642,6 +5941,44 @@ try{(function(){
  const st=document.createElement('button');st.type='button';st.id='lgstart';st.className='lgb';st.style.left='50%';st.style.top='67%';st.innerHTML='▶<small>START</small>';st.title='Start driving';
  st.onmouseenter=()=>{lbl.textContent='Start driving';lbl.classList.add('on');};st.onmouseleave=()=>lbl.classList.remove('on');st.onclick=()=>$('go').click();w.appendChild(st);
 })();}catch(e){console.error(e);}
+/* v0.74: editor – top bar keeps only the essentials as icon buttons; tools and helpers move to the left panel */
+try{(function(){
+ const top=$('edtop'),left=$('edleft'),IC={select:'👆',road:'🛣',erase:'🚫',building:'🏢',zone:'🟩',prop:'🌳',spawn:'📍',mask:'🎭'};
+ const sec=(id,title,open)=>{const d=document.createElement('details');d.id=id;if(open)d.open=true;d.innerHTML='<summary>'+title+'</summary>';return d;};
+ const sT=sec('sec_tools','Tools',true),tg=$('edtools');tg.className='toolgrid';sT.appendChild(tg);
+ tg.querySelectorAll('button').forEach(b=>{const l=b.textContent;b.innerHTML='<i>'+(IC[b.dataset.tool]||'•')+'</i><span>'+l+'</span>';b.classList.add('ib');b.addEventListener('click',()=>$('ed').classList.remove('lo'));});
+ const sV=sec('sec_view','View & helpers',true),vg=document.createElement('div');vg.className='chips';sV.appendChild(vg);
+ const lab={e_er:'🧽 Erase mode',e_grid:'▦ Grid',e_fit:'⤢ Fit map',e_import:'🖼 Import image'};
+ ['e_er','e_grid','e_snap','e_fit','e_import'].forEach(i=>{const b=$(i);if(lab[i])b.textContent=lab[i];vg.appendChild(b);});
+ left.insertBefore(sV,left.firstChild);left.insertBefore(sT,left.firstChild);
+ const mk=(id,ic,l,tip,fn,cls)=>{let b=$(id);if(!b){b=document.createElement('button');b.id=id;}b.className='ib'+(cls?' '+cls:'');b.innerHTML='<i>'+ic+'</i><span>'+l+'</span>';b.title=tip;if(fn)b.onclick=fn;return b;};
+ const share=()=>{syncRoads();const json=JSON.stringify(MAP),name=(MAP.name||'map').replace(/[^\w\- ]+/g,'')+'.json';
+  modal('📤 Export & share','<p class="muted">Send this map to a friend or keep a backup. To open a map you received, use 📂 Load.</p>'+
+   '<div class="toolgrid"><button class="ib" id="x_dl"><i>⬇</i><span>Download file</span></button><button class="ib" id="x_cp"><i>📋</i><span>Copy as text</span></button><button class="ib" id="x_sh"><i>📨</i><span>Share…</span></button></div><p class="muted">'+esc(name)+' · '+Math.round(json.length/1024)+' KB</p>');
+  $('x_dl').onclick=()=>{try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove();}catch(e){toast('Download blocked here – use Copy');}};
+  $('x_cp').onclick=()=>{try{navigator.clipboard.writeText(json).then(()=>toast('Map copied'),()=>toast('Copy is blocked here'));}catch(e){toast('Copy is blocked here');}};
+  $('x_sh').onclick=()=>{try{const f=new File([json],name,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:MAP.name||'Drive map'}).catch(()=>{});else toast('Sharing is not supported on this device – use Download or Copy');}catch(e){toast('Sharing is not supported on this device – use Download or Copy');}};};
+ const save=()=>{MAP.name=$('m_name').value||MAP.name||'Untitled map';quickSave();toast('💾 Saved "'+MAP.name+'" on this device');};
+ const order=[mk('e_menu','🏠','Menu','Back to the main menu'),mk('e_load','📂','Load','Open a saved map or a map file',openFiles),mk('e_save','💾','Save','Save this map on this device',save),
+  mk('e_share','📤','Export','Export & share this map',share),mk('e_test','▶','Test','Drive on this map now',null,'go'),mk('e_undo','↶','Undo','Undo (Ctrl+Z)'),mk('e_redo','↷','Redo','Redo (Ctrl+Y)')];
+ $('e_files').style.display='none';[...top.children].forEach(c=>{if(c.classList.contains('sep'))c.remove();});order.forEach(b=>top.appendChild(b));
+})();}catch(e){console.error(e);}
+setInterval(()=>{if(mode!=='game'){const a=$('dgr'),b=$('dgrt');if(a)a.style.opacity=0;if(b)b.style.opacity=0;}},300);
+/* v0.75: law-abiding driver mode – a speed limiter that holds the legal limit; drops out when you break the law, unavailable while wanted */
+try{(function(){
+ window.LAWON=false;
+ const b=document.createElement('button');b.id='lawbtn';b.type='button';b.textContent='🪪';b.title='Law-abiding driver (L): holds the legal speed limit. Switches off when you break the law.';$('hudcol').appendChild(b);
+ const blocked=()=>(typeof wanted!=='undefined'&&wanted>0)?'Not while the police are after you':(typeof RC!=='undefined'&&RC.st!=='idle'&&RC.st!=='done')?'Not during a race':(typeof trafOn==='function'&&!trafOn())?'Traffic law is switched off in Policy':'';
+ const paint=()=>{b.classList.toggle('on',window.LAWON);b.classList.toggle('no',!window.LAWON&&!!blocked());};
+ window.lawOff=why=>{if(!window.LAWON)return;window.LAWON=false;lawApply();paint();toast('🪪 Law-abiding mode OFF'+(why?' – '+why:''));};
+ const tog=()=>{if(mode!=='game')return;if(window.LAWON){window.LAWON=false;lawApply();paint();toast('🪪 Law-abiding mode off');return;}
+  const w=blocked();if(w){toast('🪪 '+w+' – clear your name first');return;}
+  window.LAWON=true;lawApply();paint();toast('🪪 Law-abiding driver: speed held at '+trafLimit()+' km/h, licence points drop twice as fast');};
+ b.onclick=tog;addEventListener('keydown',e=>{if(e.code==='KeyL'&&!e.repeat&&!/INPUT|TEXTAREA|SELECT/.test((e.target.tagName||'')))tog();});
+ setInterval(()=>{if(window.LAWON){if(mode!=='game'){window.LAWON=false;lawApply();}else if(typeof wanted!=='undefined'&&wanted>0)lawOff('the police are after you');else if(typeof TB!=='undefined'&&TB.want)lawOff('turbo used');else if(blocked())lawOff(blocked());}paint();},250);
+})();}catch(e){console.error(e);}
+
+setInterval(()=>{const m=$('modal');if(m&&m.classList.contains('peek')&&getComputedStyle(m).display==='none')m.classList.remove('peek');},300);
 
 showUI();
 setMap(showcaseMap());
