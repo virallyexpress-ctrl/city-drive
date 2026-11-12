@@ -5640,7 +5640,8 @@ function at(L,s){s=((s%L.T)+L.T)%L.T;let lo=0,hi=L.S.length-1;while(lo<hi){const
   const a=L.P[lo],b=L.P[(lo+1)%L.P.length],seg=Math.max(1e-6,(L.S[lo+1]??L.T)-L.S[lo]),k=(s-L.S[lo])/seg;return {x:a[0]+(b[0]-a[0])*k,y:a[1]+(b[1]-a[1])*k,a:Math.atan2(b[0]-a[0],-(b[1]-a[1])),i:lo};}
 function spec(){const d=VEH[selIdx]||VEH[0],c=typeof condOf==='function'?condOf(selIdx)/100:1;return {d,max:d.max*(.82+.18*c),acc:d.acc*(.8+.2*c),turn:d.turn*(.9+.1*c)};}
 function step(dt){const S=spec(),sc=Math.min(W,H)/700,L=run.loop||(run.loop=buildLoop());
-  const vmax=S.max*sc*1.1,acc=S.acc*sc*1.25,brk=acc*2.2,grip=(S.turn/2.8)*vmax*vmax*.0042;
+  const mx=VEH.map(d=>d.max),lo=Math.min(...mx),hi=Math.max(...mx),tier=hi>lo?(S.d.max-lo)/(hi-lo):.5,vkm=(80+20*tier)*(S.max/S.d.max);
+  const vmax=vkm/.3*sc*1.1,acc=S.acc*sc*.55,brk=acc*2.2,grip=(S.turn/2.8)*vmax*vmax*.0042;
   /* look ahead for the slowest corner within braking distance */
   const hb=(typeof HBK!=='undefined')?HBK:{turn:1.5,brake:.9,grip:1.3},spinN=clamp((hb.turn-1)/1.5,0,1),brkN=clamp(hb.brake/3,0,1),gripN=clamp(hb.grip/4,0,1);
   const sm=((run.s%L.T)+L.T)%L.T,dAp=sm-L.sAp,zin=G.lw*3,zout=G.lw*1.6,inHB=dAp>-zin&&dAp<zout;run.hbz=[L.sAp-zin,L.sAp+zout];
@@ -5649,7 +5650,7 @@ function step(dt){const S=spec(),sc=Math.min(W,H)/700,L=run.loop||(run.loop=buil
   if(run.v>need)run.v=Math.max(need,run.v-brk*dt);else run.v=Math.min(vmax,run.v+acc*dt*(1-run.v/vmax*.55));
   run.s+=run.v*dt;
   const over=Math.max(0,run.v*run.v/Math.max(rh,1)-grip)/grip;run.slip+=((Math.min(.9,over*.8+(rh<1e8?(2.9-S.turn)*.12:0)))-run.slip)*Math.min(1,dt*5);
-  if(inHB&&dAp>-G.lw*1.2){run.v=Math.max(vmax*.12,run.v-brk*brkN*1.4*dt);run.hbS=(run.hbS||0)+(((.5+1.1*spinN)*(1.25-gripN))-(run.hbS||0))*Math.min(1,dt*9);}
+  if(inHB&&dAp>-G.lw*1.2){run.v=Math.max(vmax*.45,run.v-brk*brkN*1.4*dt);run.hbS=(run.hbS||0)+(((.5+1.1*spinN)*(1.25-gripN))-(run.hbS||0))*Math.min(1,dt*9);}
   else run.hbS=(run.hbS||0)*Math.exp(-dt*(1.5+gripN*9));
   run.hbOn=inHB&&dAp>-G.lw*1.2;
   const p=at(L,run.s);if(run.hbS>.25)run.sk.push([p.x,p.y]);if(run.slip>.18&&Math.random()<.7)run.sk.push([p.x,p.y]);if(run.sk.length>260)run.sk.shift();
@@ -5775,7 +5776,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.76 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.77 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
