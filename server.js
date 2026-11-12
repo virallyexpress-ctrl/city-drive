@@ -1,4 +1,4 @@
-// ViRally Drive – tiny multiplayer relay + static host.  Run: npm install && node server.js
+// Drive – tiny multiplayer relay + static host.  Run: npm install && node server.js
 const http=require('http'),fs=require('fs'),path=require('path');
 const {WebSocketServer}=require('ws');
 const PORT=process.env.PORT||8080,MAX=10;
@@ -24,13 +24,14 @@ const tgName=f=>String(f.first_name||f.username||'Driver').replace(/[<>&"']/g,''
 async function tgUpdate(u){
   if(u.message&&typeof u.message.text==='string'){
     const m=u.message,tok=(m.text.match(/^\/start\s+([a-f0-9]{16})$/)||[])[1],p=tok&&tgPend.get(tok);
-    if(!p||p.exp<Date.now())return tgCall('sendMessage',{chat_id:m.chat.id,text:'ViRally Drive: open the game, press "Log in with Telegram" and scan the QR code.'});
-    return tgCall('sendMessage',{chat_id:m.chat.id,text:'Log in to ViRally Drive as "'+tgName(m.from)+'"?',reply_markup:{inline_keyboard:[[{text:'✅ Approve',callback_data:'ok:'+tok},{text:'✖ Cancel',callback_data:'no:'+tok}]]}});
+    if(/^\/id\b/.test(m.text))return tgCall('sendMessage',{chat_id:m.chat.id,text:'Your Telegram ID: '+m.from.id});
+    if(!p||p.exp<Date.now())return tgCall('sendMessage',{chat_id:m.chat.id,text:'Drive: open the game, press "Log in with Telegram" and scan the QR code.'});
+    return tgCall('sendMessage',{chat_id:m.chat.id,text:'Log in to Drive as "'+tgName(m.from)+'"?',reply_markup:{inline_keyboard:[[{text:'✅ Approve',callback_data:'ok:'+tok},{text:'✖ Cancel',callback_data:'no:'+tok}]]}});
   }
   if(u.callback_query){
     const q=u.callback_query,mm=String(q.data||'').match(/^(ok|no):([a-f0-9]{16})$/),p=mm&&tgPend.get(mm[2]);let txt='This login request has expired.';
     if(p&&p.exp>Date.now()&&!p.done){
-      if(mm[1]==='ok'){const name=tgName(q.from);p.done={name,s:tgSign({id:q.from.id,name,exp:Date.now()+30*864e5})};txt='✅ Logged in as "'+name+'". Go back to the game.';}
+      if(mm[1]==='ok'){const name=tgName(q.from);p.done={name,id:q.from.id,s:tgSign({id:q.from.id,name,exp:Date.now()+30*864e5})};txt='✅ Logged in as "'+name+'". Go back to the game.';}
       else{tgPend.delete(mm[2]);txt='✖ Login cancelled.';}
     }
     tgCall('answerCallbackQuery',{callback_query_id:q.id}).catch(()=>{});
@@ -46,6 +47,8 @@ async function tgLoop(){
 }
 if(TG_TOKEN)tgLoop();
 setInterval(()=>{const n=Date.now();for(const[k,v]of tgPend)if(v.exp<n)tgPend.delete(k);},60000);
+const ADMINS=String(process.env.ADMIN_TG||'').split(',').map(x=>x.trim()).filter(Boolean);const isAdmin=id=>ADMINS.includes(String(id));
+let POLICY_JSON='{}';try{POLICY_JSON=JSON.stringify(JSON.parse(process.env.POLICY_JSON||'{}'));}catch(e){console.log('POLICY_JSON is not valid JSON – ignored');}
 function tgHttp(req,res){
   const out=o=>{res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(o));};
   if(req.url.startsWith('/tg/info'))return out({on:!!(TG_TOKEN&&TG_BOT),bot:TG_BOT});
@@ -53,13 +56,14 @@ function tgHttp(req,res){
   req.on('end',()=>{let m={};try{m=JSON.parse(b||'{}');}catch(e){}
     if(!(TG_TOKEN&&TG_BOT))return out({ok:false});
     if(req.url.startsWith('/tg/new')){if(tgPend.size>5000)return out({ok:false});const t=crypto.randomBytes(8).toString('hex');tgPend.set(t,{exp:Date.now()+5*60000,done:null});return out({ok:true,token:t,url:'https://t.me/'+TG_BOT+'?start='+t});}
-    if(req.url.startsWith('/tg/poll')){const p=tgPend.get(String(m.token||''));if(!p)return out({ok:false,gone:true});if(!p.done)return out({ok:false});tgPend.delete(m.token);return out({ok:true,name:p.done.name,s:p.done.s});}
-    if(req.url.startsWith('/tg/me')){const o=tgVerify(m.s);return out(o?{ok:true,name:o.name}:{ok:false});}
+    if(req.url.startsWith('/tg/poll')){const p=tgPend.get(String(m.token||''));if(!p)return out({ok:false,gone:true});if(!p.done)return out({ok:false});tgPend.delete(m.token);return out({ok:true,name:p.done.name,s:p.done.s,admin:isAdmin(p.done.id)});}
+    if(req.url.startsWith('/tg/me')){const o=tgVerify(m.s);return out(o?{ok:true,name:o.name,admin:isAdmin(o.id)}:{ok:false});}
     out({ok:false});});
 }
 
 const server=http.createServer((req,res)=>{
   if(req.url.startsWith('/health')){res.end('ok');return;}
+  if(req.url.startsWith('/policy')){res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(POLICY_JSON);return;}
   if(req.url.startsWith('/tg/'))return tgHttp(req,res);
   fs.readFile(path.join(__dirname,'public','index.html'),(e,d)=>{
     if(e){res.writeHead(404);res.end('Put the game file at public/index.html');return;}
@@ -100,4 +104,4 @@ wss.on('connection',ws=>{
   ws.on('close',()=>leave(ws));ws.on('error',()=>{});
 });
 setInterval(()=>{for(const ws of wss.clients){if(!ws.alive){ws.terminate();continue;}ws.alive=false;try{ws.ping();}catch(e){}}},30000);
-server.listen(PORT,()=>console.log('ViRally Drive server on :'+PORT));
+server.listen(PORT,()=>console.log('Drive server on :'+PORT));
