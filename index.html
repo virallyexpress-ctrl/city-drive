@@ -3445,7 +3445,7 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>{keys[e.code]=0;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=0;});
 function inp(){
-  const TDc=touchDrive(),tbk=TDc.dn,tbHB=TDc.hb,dn=keys['ArrowDown']||keys['KeyS']||tbk,up=keys['ArrowUp']||keys['KeyW']||tk.up||(CTL==='auto'&&!dn&&mode==='game');
+  const TDc=touchDrive(),tbk=TDc.dn,tbHB=TDc.hb,dn=keys['ArrowDown']||keys['KeyS']||tbk,up=keys['ArrowUp']||keys['KeyW']||tk.up||(CTL==='auto'&&!dn&&!tbHB&&mode==='game');
   const lf=keys['ArrowLeft']||keys['KeyA']||tk.left,rt=keys['ArrowRight']||keys['KeyD']||tk.right;
   player.th=(up?1:0)-(dn?1:0);player.steer=clamp((rt?1:0)-(lf?1:0)+(tk.sa||0)+joySteer(),-1,1);player.hb=(keys['Space']||tk.hb||tbHB)?1:0;
 }
@@ -3870,6 +3870,7 @@ function drawVehicle(v,t){
   const pr=par(v.x,v.y,H);
   ctx.save();ctx.translate(v.x+pr[0],v.y+pr[1]);ctx.rotate(v.a);
   if(v.brk){ctx.globalCompositeOperation='lighter';ctx.fillStyle='rgba(255,40,30,.85)';for(const s of[-1,1]){ctx.beginPath();ctx.arc(s*v.bw*0.33,v.L/2-3,5,0,TAU);ctx.fill();}ctx.globalCompositeOperation='source-over';}
+  if(v.fv<-6){ctx.globalCompositeOperation='lighter';for(const s of[-1,1]){const x0=s*v.bw*0.2,y0=v.L/2-2,g=ctx.createRadialGradient(x0,y0+4,1,x0,y0+4,13);g.addColorStop(0,'rgba(255,255,255,.5)');g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x0,y0+4,13,0,TAU);ctx.fill();ctx.fillStyle='rgba(255,255,255,.95)';ctx.beginPath();ctx.arc(x0,y0,3.5,0,TAU);ctx.fill();}ctx.globalCompositeOperation='source-over';}
   if(v.hbOn){ctx.globalCompositeOperation='lighter';for(const s of[-1,1]){const x0=s*v.bw*0.3,y0=-v.L/2+2,g=ctx.createLinearGradient(0,y0,0,y0-240);g.addColorStop(0,'rgba(255,250,215,.6)');g.addColorStop(1,'rgba(255,250,215,0)');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x0-4,y0);ctx.lineTo(x0+4,y0);ctx.lineTo(x0+38,y0-240);ctx.lineTo(x0-38,y0-240);ctx.closePath();ctx.fill();ctx.fillStyle='rgba(255,255,230,.95)';ctx.beginPath();ctx.arc(x0,y0,4.5,0,TAU);ctx.fill();}ctx.globalCompositeOperation='source-over';}
   if(v.siren){
     const ph=Math.floor(t*7)%2;ctx.globalCompositeOperation='lighter';
@@ -5220,7 +5221,7 @@ function trafGive(k,val){
   if(!TRT[k])return;
   if(window.lawOff)lawOff('You broke the law');const t=TRT[k];TRF.pts+=t.pts;TRF.fine+=t.fine;TRF.cleanT=0;TRF.list.unshift({k,val,at:Date.now()});TRF.list.length=Math.min(TRF.list.length,20);
   if(typeof ST!=='undefined'&&ST){ST.tickets=(ST.tickets||0)+1;}
-  toast('🎫 '+t.ic+' '+t.n+(val?' ('+val+' km/h)':'')+' – ₪'+t.fine+', +'+t.pts+' points ('+Math.min(TRF.pts,TRF_MAX)+'/'+TRF_MAX+')');
+  toast('🎫 '+t.ic+' '+t.n+(val?' ('+val+' km/h)':'')+' – ₿'+(t.fine/1e6).toFixed(5)+', +'+t.pts+' points ('+Math.min(TRF.pts,TRF_MAX)+'/'+TRF_MAX+')');
   if(TRF.pts>=TRF_MAX){TRF.pts=0;setTimeout(()=>{toast('🚫 Licence suspended – '+TRF_MAX+' points! The police are coming');setWanted(Math.max(1,wanted));},900);}
   trafSave();trafHud();
 }
@@ -5337,6 +5338,41 @@ function boomDraw(dt){
     ctx.drawImage(BOOM,f*F,0,F,F,b.x-b.s/2,b.y-b.s/2,b.s,b.s);}
 }
 window.__boom=boomAt;
+
+/* ---------- v0.83: smooth motion, chain explosions, reverse beeper ---------- */
+/* (a) physics runs at a fixed 90 Hz; the screen usually refreshes at 60 Hz, so frames alternately held 1 and 2 physics steps
+       (visible judder). Draw every active vehicle a little ahead by the time left in the accumulator. */
+{const _r=render;render=function(t,dt){
+  const a=Math.max(0,Math.min(acc,STEP)),sv=[];
+  if(a>0)for(const v of vehicles){if(!v.act||v.wreck)continue;sv.push(v,v.x,v.y);v.x+=v.vx*a;v.y+=v.vy*a;}
+  try{_r(t,dt);}finally{for(let i=0;i<sv.length;i+=3){sv[i].x=sv[i+1];sv[i].y=sv[i+2];}}
+  revBeep(t);};}
+/* (b) chain reaction: vehicles next to an explosion are hit by its blast wave one second later (random damage) */
+const BLAST=[],BLAST_R=190;
+{const _w=wreckIt;wreckIt=function(v){const was=v.wreck;_w(v);if(was)return;
+  const near=[];for(const u of vehicles){if(u===v||u.wreck||u.remote||!u.act)continue;if(Math.hypot(u.x-v.x,u.y-v.y)<BLAST_R)near.push(u);}
+  if(near.length){BLAST.push({x:v.x,y:v.y,t:1,near,ring:-1});if(BLAST.length>24)BLAST.shift();}};}
+{const _b=boomDraw;boomDraw=function(dt){
+  for(let i=BLAST.length-1;i>=0;i--){const b=BLAST[i];
+    if(b.ring<0){b.t-=dt;
+      if(b.t>0.15&&Math.random()<dt*14)fire(b.x+(Math.random()-.5)*30,b.y+(Math.random()-.5)*30);
+      if(b.t<=0){b.ring=0;boomAt(b.x,b.y,150);
+        for(const u of b.near){if(u.wreck)continue;const dx=u.x-b.x,dy=u.y-b.y,d=Math.hypot(dx,dy)||1;if(d>BLAST_R*1.7)continue;   /* drove clear in time */
+          const k=clamp(1.15-d/(BLAST_R*1.7),0.15,1);u.vx+=dx/d*420*k;u.vy+=dy/d*420*k;u.av=(u.av||0)+(Math.random()-.5)*5*k;
+          hurt(u,(15+Math.random()*95)*k);if(u===player)cam.shake=Math.max(cam.shake,14);}}}
+    else{b.ring+=dt;const q=b.ring/0.45;if(q>=1){BLAST.splice(i,1);continue;}
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,210,150,'+(0.7*(1-q))+')';ctx.lineWidth=14*(1-q)+2;ctx.beginPath();ctx.arc(b.x,b.y,30+q*BLAST_R*1.5,0,TAU);ctx.stroke();ctx.restore();}
+  }
+  _b(dt);};}
+/* (c) large vehicles (trucks, buses, vans) beep while reversing */
+let _rvT=0;
+function revBeep(t){
+  if(typeof AC==='undefined'||!AC||(typeof muted!=='undefined'&&muted)||mode!=='game'||window.PAUSED||t-_rvT<0.62)return;
+  let best=0;for(const v of vehicles){if(!v.act||v.wreck||!(v.fv<-6)||!(v.L>85||/van|ambulance|truck/i.test(VEH[v.vi].name||'')))continue;const d=Math.hypot(v.x-player.x,v.y-player.y);best=Math.max(best,v===player?1:1-d/700);}
+  if(best<=0.05)return;_rvT=t;
+  try{const n=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=1250;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(0.09*best,n+0.01);g.gain.setValueAtTime(0.09*best,n+0.26);g.gain.linearRampToValueAtTime(0,n+0.3);o.connect(g);g.connect(AC.destination);o.start(n);o.stop(n+0.32);}catch(_){}
+}
+window.__fx={BLAST,get TD(){return TD;},wreck:v=>wreckIt(v),td:()=>touchDrive(),VEH};
 
 /* ---------- v0.63: race bots – solo race vs computer drivers, or pairs (you + partner vs two rivals); skill levels incl. Auto that adapts to you ---------- */
 const BOTS=[];
@@ -5870,7 +5906,7 @@ window.TGS='';
 let CTL='arrows',TILTINV=1;try{CTL=localStorage.getItem('cd:ctl')||'arrows';TILTINV=+(localStorage.getItem('cd:tinv')||1);}catch(_){}
 /* Touch driving model.
    Joystick = the DIRECTION you want to travel (screen up = north). The car turns toward it; reversing flips the sense.
-   Brake button = tap 1: handbrake until the car stops; tap 2 (also while stopping): reverse mode; tap while reversing: stop.
+   Brake button = hold: brake, then handbrake while held; double-tap: reverse mode on/off.
    Gas always means forward and leaves reverse mode. */
 const JOY={on:false,x:0,y:0},TD={st:'D',pend:0,tg:0};
 const wrapA=x=>{while(x>Math.PI)x-=TAU;while(x<-Math.PI)x+=TAU;return x;};
@@ -5882,14 +5918,12 @@ function joySteer(){
   return clamp(e*2.4,-1,1)*(Math.abs(fv)>20?Math.sign(fv):(rm?-1:1));   /* yaw follows the sign of the travel speed */
 }
 function touchDrive(){
-  const o={dn:false,hb:false};if(mode!=='game'){TD.st='D';TD.pend=0;return o;}
-  const fv=fvNow();
-  if(tk.up&&TD.st!=='D'){TD.st='D';TD.pend=0;}
-  if(TD.st==='S'){
-    if(Math.abs(fv)<8){TD.st=TD.pend?'R':'D';TD.pend=0;}
-    else{o.hb=true;o.dn=fv>25;}
-  }
-  if(TD.st==='R'){o.dn=true;}
+  /* v0.83: HOLD the brake = brake, then handbrake while held; DOUBLE-TAP = reverse mode on/off; gas leaves reverse mode */
+  const o={dn:false,hb:false};if(mode!=='game'){TD.st='D';TD.held=0;return o;}
+  const fv=fvNow();if(tk.up&&TD.st==='R')TD.st='D';
+  const held=!!TD.held,lng=held&&performance.now()-TD.t0>260;
+  if(TD.st==='R'){if(held)o.hb=true;else o.dn=true;}
+  else if(held){o.dn=fv>25;if(lng||fv<=25)o.hb=true;}
   return o;
 }
 
@@ -5909,17 +5943,15 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
   const on=e=>{e.preventDefault();act=e.pointerId;jb.classList.add('act');try{jb.setPointerCapture(e.pointerId);}catch(_){}mv(e);};
   const off=e=>{if(e.pointerId!==act)return;act=null;JOY.on=false;kn.style.transform='translate(0,0)';jb.classList.remove('act');};
   jb.addEventListener('pointerdown',on);jb.addEventListener('pointermove',e=>{if(e.pointerId===act)mv(e);});jb.addEventListener('pointerup',off);jb.addEventListener('pointercancel',off);jb.addEventListener('lostpointercapture',off);jb.addEventListener('contextmenu',e=>e.preventDefault());}
- {const bb=$('tbrk');bb.innerHTML='🛑<br>BRAKE<br>↺ REVERSE';
-  bb.addEventListener('pointerdown',()=>{if(mode!=='game')return;const fv=fvNow();
-   if(TD.st==='R'){TD.st='S';TD.pend=0;toast('⏹ Stopping');}
-   else if(TD.st==='S'){TD.pend=1;toast('↺ Reverse next');}
-   else if(fv>20){TD.st='S';TD.pend=0;toast('⏹ Handbrake');}
-   else{TD.st='R';toast('↺ Reverse – press gas to go forward');}
-  });}
+ {const bb=$('tbrk');bb.innerHTML='🛑 BRAKE<br>hold = 🅿<br>2× tap = ↺ R';
+  bb.addEventListener('pointerdown',()=>{if(mode!=='game')return;const n=performance.now();TD.held=1;TD.t0=n;
+   if(n-(TD.lt||0)<360){TD.lt=0;if(TD.st==='R'){TD.st='D';toast('▶ Drive');}else{TD.st='R';toast('↺ Reverse – double-tap again or press gas to go forward');}}
+   else TD.lt=n;});
+  const up=()=>{TD.held=0;};bb.addEventListener('pointerup',up);bb.addEventListener('pointercancel',up);bb.addEventListener('lostpointercapture',up);}
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.82 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 0.83 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
@@ -6134,7 +6166,7 @@ function frame(now){
   if(mode==='menu'){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#0d1117';ctx.fillRect(0,0,W,H);return;}
   if(mode==='editor'){edRender(now/1000);return;}
   let dt=(now-last)/1000;last=now;if(dt>0.1)dt=0.1;if(window.PAUSED){dt=0;acc=0;}
-  { const pl=player;for(const v of vehicles){v.act=v===pl||!!v.bot||!!(v.ai&&(v.ai.cop||v.ai.mission))||((v.x-pl.x)*(v.x-pl.x)+(v.y-pl.y)*(v.y-pl.y)<2000*2000);} }
+  { const pl=player;for(const v of vehicles){v.act=v===pl||!!v.bot||!!(v.ai&&(v.ai.cop||v.ai.mission))||((v.x-pl.x)*(v.x-pl.x)+(v.y-pl.y)*(v.y-pl.y)<(window.QSV<0.8?1300*1300:2000*2000));} }
   acc+=dt;let n=0;mpTick(now,dt);hazardTick(dt);stationsTick(dt);
   while(acc>=STEP&&n<6){
     if(!player.wreck)inp();
@@ -6142,7 +6174,7 @@ function frame(now){
     for(const v of vehicles)if(v.act&&!v.remote)stepVehicle(v,STEP);
     for(const v of vehicles)if(v.act&&!v.remote&&!(v.air>0))collideSt(v);
     for(let pass=0;pass<3;pass++){   /* several relaxation passes so stacked cars are pushed fully apart instead of overlapping */
-      for(let i=0;i<vehicles.length;i++)for(let j=i+1;j<vehicles.length;j++){
+      for(let i=0;i<vehicles.length;i++)if(vehicles[i].act)for(let j=i+1;j<vehicles.length;j++){
         const a=vehicles[i],b=vehicles[j];
         if(!a.act||!b.act||a.air>0||b.air>0||!!a.roof!==!!b.roof)continue;
         if(a.ai&&b.ai&&(a.ai.ghost>0||b.ai.ghost>0))continue;
