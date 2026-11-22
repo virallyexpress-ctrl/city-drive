@@ -5658,11 +5658,17 @@ function osmToMap(js,lat0,lon0,name){
 }
 async function osmFetch(lat,lon){
   const dLat=OSM.HALF/110540,dLon=OSM.HALF/(Math.cos(lat*Math.PI/180)*111320),b=[lat-dLat,lon-dLon,lat+dLat,lon+dLon].map(v=>v.toFixed(6)).join(',');
-  const q='[out:json][timeout:25];(way["highway"]('+b+');way["building"]('+b+');way["leisure"~"park|garden|pitch|swimming_pool"]('+b+');way["landuse"~"grass|recreation_ground|meadow|forest|village_green|reservoir"]('+b+');way["natural"~"water|wood|beach|sand"]('+b+');way["amenity"="parking"]('+b+');node["amenity"="police"]('+b+'););out geom;';
-  let last;for(const u of['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter']){
-    try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),30000);const r=await fetch(u,{method:'POST',signal:ac.signal,body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'}});clearTimeout(tm);if(r.ok)return await r.json();last='server '+r.status;}catch(e){last=e.name==='AbortError'?'no answer after 30 s':e.message;}}
-  throw new Error(last||'no answer');
+  const q='[out:json][timeout:40];(way["highway"]('+b+');way["building"]('+b+');way["leisure"~"park|garden|pitch|swimming_pool"]('+b+');way["landuse"~"grass|recreation_ground|meadow|forest|village_green|reservoir"]('+b+');way["natural"~"water|wood|beach|sand"]('+b+');way["amenity"="parking"]('+b+');node["amenity"="police"]('+b+'););out geom;';
+  /* v1.04: ask several public map servers at the same time – the first good answer wins (one busy server no longer blocks you) */
+  const U=['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
+  const acs=U.map(()=>new AbortController()),tm=setTimeout(()=>acs.forEach(a=>a.abort()),45000),errs=[];
+  try{return await Promise.any(U.map((u,k)=>fetch(u,{method:'POST',signal:acs[k].signal,body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'}})
+      .then(async r=>{if(!r.ok)throw new Error('server '+r.status);const j=await r.json();if(!j||!Array.isArray(j.elements))throw new Error('bad answer');acs.forEach((a,m)=>{if(m!==k)a.abort();});return j;})
+      .catch(e=>{errs.push(e.name==='AbortError'?'timeout':e.message);throw e;})));}
+  catch(_){throw new Error(errs.includes('timeout')?'no answer after 45 s from '+U.length+' map servers':errs[0]||'no answer');}
+  finally{clearTimeout(tm);}
 }
+
 async function osmGeocode(q){const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q));const j=await r.json();if(!j.length)throw new Error('Place not found');return [parseFloat(j[0].lat),parseFloat(j[0].lon),j[0].display_name.split(',')[0]];}
 /* v0.97: a clear progress window while the map is being made */
 let OSMSTEP=0;
@@ -5676,8 +5682,9 @@ function osmPlay(m){try{localStorage.setItem('cdmap:'+m.name,JSON.stringify(m));
   if(typeof fillMapSel==='function')fillMapSel(m.name);setMap(m);enterGame();}
 function osmFail(msg){osmUI(OSMSTEP,'Could not make the map',msg,[['↻ Try again',osmAsk],['🔎 Type a place',osmType],['✕ Close',()=>osmUI(null)]]);}
 async function osmStart(lat,lon,label){
-  osmUI(1,'Downloading the streets of '+(label||'your area')+'…','About 900 × 900 m. This can take 5–20 seconds.');
-  let js;try{js=await osmFetch(lat,lon);}catch(e){osmFail('The map server did not answer ('+e.message+'). Check the internet and try again.');return;}
+  const t0=Date.now(),area=Math.round(OSM.HALF*2),tick=setInterval(()=>{const o=document.querySelector('#osmov .sub');if(o&&OSMSTEP===1)o.textContent='About '+area+' × '+area+' m · asking 4 map servers · '+Math.round((Date.now()-t0)/1000)+' s';},1000);
+  osmUI(1,'Downloading the streets of '+(label||'your area')+'…','About '+area+' × '+area+' m · asking 4 map servers');
+  let js;try{js=await osmFetch(lat,lon);clearInterval(tick);}catch(e){clearInterval(tick);osmFail('The map server did not answer ('+e.message+'). The map servers may be busy – try again in a minute, or choose a smaller area.');return;}
   const nw=(js.elements||[]).length;osmUI(2,'Building the city…',nw+' map pieces downloaded');await new Promise(r=>setTimeout(r,60));
   const m=osmToMap(js,lat,lon,'Near: '+(label||(lat.toFixed(3)+', '+lon.toFixed(3))));
   const nr=m.roads.join('').split('1').length-1;if(!nr){osmFail('No roads were found here. Try another place.');return;}
@@ -6513,7 +6520,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.03 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.04 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
