@@ -3780,7 +3780,7 @@ function drawGround(vx0,vy0,vx1,vy1){
   }
   ctx.fill();
   /* fillets are filled one by one: mixed winding directions in one path left hairline gaps at two of the four corners */
-  for(const f of FIL){ctx.beginPath();fillet(f[0],f[1],f[2],f[3]);ctx.fill();}
+  {const sw=ctx.lineWidth,ss=ctx.strokeStyle;ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=1.5;ctx.lineJoin='round';for(const f of FIL){ctx.beginPath();fillet(f[0],f[1],f[2],f[3]);ctx.fill();ctx.stroke();}ctx.lineWidth=sw;ctx.strokeStyle=ss;}   /* v1.08: a hair of stroke closes the thin seams between the corner pieces and the road */
   // edge lines (straight, shortened and joined by arcs when corners are rounded)
   ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;ctx.beginPath();
   for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){
@@ -6538,7 +6538,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.07 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.08 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
