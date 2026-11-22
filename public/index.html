@@ -416,6 +416,11 @@ button.ib i,button.ib span{align-self:center!important;margin:0!important;text-a
 #zonelist button{max-width:100%;white-space:normal;text-align:left;line-height:1.25;height:auto}
 #lanebar{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);z-index:30;display:none;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:rgba(15,20,28,.92);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 10px;color:#fff;font:13px sans-serif;max-width:94vw}
 #lanebar button{padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:#253041;color:#fff;cursor:pointer}#lanebar button:disabled{opacity:.4}
+#mapsel{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#maplist{flex-basis:100%;max-height:46vh;overflow:auto;display:flex;flex-direction:column;gap:4px;margin-top:6px}
+#maplist .mlg{font-size:12px;color:#ffd54a;margin:8px 0 2px;font-weight:700}
+#maplist button{text-align:left;padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.15);background:rgba(37,48,65,.8);color:#fff;font-size:14px;cursor:pointer}
+#maplist button.on{border-color:#ffd54a;background:rgba(255,213,74,.18)}
 </style>
 </head>
 <body>
@@ -6015,6 +6020,14 @@ const HOLCAT='Holidays – Hanukkah 2026';
   const cur=sel!==undefined?sel:df;if(typeof cur==='string'&&cur.startsWith('hol:'))s.value=cur;markDefBtn();};}
 {const _c=chosenMap;chosenMap=function(){const v=$('mapSel').value;if(v&&v.startsWith('hol:')&&HOLMAPS[v.slice(4)])return JSON.parse(JSON.stringify(HOLMAPS[v.slice(4)]));return _c();};}
 setTimeout(()=>{try{fillMapSel();}catch(_){}},20);
+/* v1.13: the Map panel shows every map as a tappable list, grouped (my maps / holiday maps) */
+function mapList(){const s=$('mapSel'),ms=$('mapsel');if(!s||!ms)return;let L=document.getElementById('maplist');if(!L){L=document.createElement('div');L.id='maplist';ms.appendChild(L);}
+  const item=o=>'<button type="button" data-v="'+esc(o.value)+'" class="'+(o.value===s.value?'on':'')+'">'+esc(o.textContent)+'</button>';
+  let h='<div class="mlg">🗺 My maps</div>';for(const o of s.children)if(o.tagName==='OPTION')h+=item(o);
+  for(const g of s.querySelectorAll('optgroup')){h+='<div class="mlg">'+esc(g.label)+'</div>';for(const o of g.children)h+=item(o);}
+  L.innerHTML=h;L.querySelectorAll('button').forEach(b=>b.onclick=()=>{s.value=b.dataset.v;s.dispatchEvent(new Event('change'));mapList();toast('🗺 '+b.textContent.replace('⭐ ',''));});}
+{const _f=fillMapSel;fillMapSel=function(sel){_f(sel);mapList();};}
+setTimeout(()=>{try{$('mapSel').addEventListener('change',mapList);mapList();}catch(_){}},200);
 
 /* ---------- v0.63: race bots – solo race vs computer drivers, or pairs (you + partner vs two rivals); skill levels incl. Auto that adapts to you ---------- */
 const BOTS=[];
@@ -6596,7 +6609,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.12 · 23 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.13 · 23 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
