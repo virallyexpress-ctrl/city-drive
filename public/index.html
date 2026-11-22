@@ -413,6 +413,7 @@ button.ib i,button.ib span{align-self:center!important;margin:0!important;text-a
 #osmpick .pb{position:absolute;left:8px;right:8px;bottom:8px;background:rgba(13,17,23,.9);border-radius:14px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
 #osmpick .pb label{display:flex;align-items:center;gap:6px;font-size:13px}#osmpick .pb .go{background:#2e9e4f;font-weight:700}
 #osmpick .zr{display:flex;gap:4px}#osmpick .cr{width:100%;margin:0;text-align:center;font-size:10px;color:#8a94a2}
+#zonelist button{max-width:100%;white-space:normal;text-align:left;line-height:1.25;height:auto}
 </style>
 </head>
 <body>
@@ -4061,7 +4062,7 @@ function wantedUpdate(dt){policeFX(dt);
 const ec={x:0,y:0,z:0.4};
 const ED={tool:'select',sel:null,snap:16,grid:true,zone:'grass',pal:{k:'tree',a:''},undo:[],redo:[],drag:null,mx:0,my:0,over:false,ptr:new Map(),pinch:null,assetSeq:0,_u:false,saveT:0};
 const TOOLS=[['select','Select','V'],['road','Road','R'],['erase','Erase road','E'],['building','Building','B'],['zone','Zone','Z'],['area','Multi-select','A'],['prop','Prop','P'],['spawn','Start','S'],['mask','Mask','M']];
-const ZONES=[['bridge','🌉 Bridge (raised road)'],['incline','⛰ Incline (ramp up / down)'],['grass','Grass'],['path','Path'],['sidewalk','Sidewalk'],['concrete','Concrete'],['sand','Sand'],['water','Water (solid)'],['lot','Parking lot'],['repair','Repair station'],['kill','Elimination zone'],['pstation','Police station'],['astation','Ambulance station'],['fstation','Fire station'],['express','Express repair (2× speed, cooldown)'],['cliff','Cliff / drop (falls)'],['ramp','Jump ramp']];
+const ZONES=[['bridge','🌉 Bridge (raised road)'],['incline','⛰ Incline (ramp up / down)'],['grass','Grass'],['path','Path'],['sidewalk','Sidewalk'],['concrete','Concrete'],['sand','Sand'],['water','Water (solid)'],['lot','Parking lot'],['repair','Repair station'],['kill','Elimination zone'],['pstation','Police station'],['astation','Ambulance station'],['fstation','Fire station'],['express','⚡ Express repair'],['cliff','Cliff / drop (falls)'],['ramp','Jump ramp']];
 const toW=(px,py)=>[(px-W/2)/ec.z+ec.x,(py-H/2)/ec.z+ec.y];
 const evXY=e=>[e.clientX*dpr,e.clientY*dpr];
 const sn=v=>ED.snap?Math.round(v/ED.snap)*ED.snap:v;
@@ -6526,7 +6527,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.05 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.06 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
