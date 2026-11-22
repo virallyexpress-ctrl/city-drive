@@ -2842,6 +2842,7 @@ function normMap(m){
   if(m.spawn)o.spawn={x:num(m.spawn.x,0),y:num(m.spawn.y,0),a:num(m.spawn.a,0)};
   if(Array.isArray(m.streets))o.streets=m.streets.filter(s=>s&&s.n&&Array.isArray(s.p)).slice(0,1500).map(s=>({n:String(s.n).slice(0,60),p:s.p.slice(0,200)}));
   if(m.osm)o.osm=String(m.osm);
+  if(m.osmSrc&&isFinite(m.osmSrc.lat)&&isFinite(m.osmSrc.lon))o.osmSrc={lat:+m.osmSrc.lat,lon:+m.osmSrc.lon,half:+m.osmSrc.half||450,rot:+m.rot||0};if(m.rot!=null)o.rot=+m.rot;
   return o;
 }
 function adoptMap(m){
@@ -5660,7 +5661,7 @@ function osmToMap(js,lat0,lon0,name,rotDeg){
   let sp=null,bd=1e18;for(let j=0;j<N;j++)for(let i=0;i<N;i++)if(road[j*N+i]){const d=(i-N/2)**2+(j-N/2)**2;if(d<bd){bd=d;sp=[i,j];}}
   const rows=[];for(let j=0;j<N;j++){let s='';for(let i=0;i<N;i++)s+=road[j*N+i]?'1':'0';rows.push(s);}
   return {format:'citydrive-map',version:1,name,cell:C,cols:N,rows:N,ground:'#a7a99b',round:40,edge:'wall',roads:rows,zones,buildings:B,props:[],assets:{},
-    rot:Math.round(rot*1800/Math.PI)/10,streets,spawn:sp?{x:sp[0]*C+C/2,y:sp[1]*C+C/2,a:0}:{x:N*C/2,y:N*C/2,a:0},osm:'© OpenStreetMap contributors'};
+    rot:Math.round(rot*1800/Math.PI)/10,osmSrc:{lat:lat0,lon:lon0,half:OSM.HALF},streets,spawn:sp?{x:sp[0]*C+C/2,y:sp[1]*C+C/2,a:0}:{x:N*C/2,y:N*C/2,a:0},osm:'© OpenStreetMap contributors'};
 }
 async function osmFetch(lat,lon){
   const R=OSM.HALF*1.42,dLat=R/110540,dLon=R/(Math.cos(lat*Math.PI/180)*111320),b=[lat-dLat,lon-dLon,lat+dLat,lon+dLon].map(v=>v.toFixed(6)).join(',');
@@ -5729,7 +5730,7 @@ setTimeout(()=>{try{const el=document.createElement('div');el.id='streetnow';doc
 }catch(e){console.warn(e);}},90);
 
 /* v0.99: choose the area on a real map – pan / zoom under a frame that shows exactly what the game map will cover */
-function osmPick(at,search){
+function osmPick(at,search,pre){
   let o=document.getElementById('osmpick');
   if(!o){o=document.createElement('div');o.id='osmpick';o.innerHTML='<div class="pv" id="pk_v"><div id="pk_t"></div><div id="pk_box"><span id="pk_lbl"></span></div></div>'+
     '<div class="pt"><button id="pk_x" title="Close">✕</button><input id="pk_q" placeholder="Place, address or coordinates (32.08, 34.78)…"><button id="pk_s" title="Search">🔎</button><button id="pk_me" title="My location">📍</button></div>'+
@@ -5737,7 +5738,7 @@ function osmPick(at,search){
   o.style.display='block';
   const V=$('pk_v'),T=$('pk_t'),st={lat:31.78,lon:35.21,z:15,size:OSM.HALF*2,rot:'auto'};
   try{const sv=JSON.parse(localStorage.getItem('cd:osmpk')||'null');if(sv)Object.assign(st,sv);}catch(_){}
-  if(at){st.lat=at[0];st.lon=at[1];}
+  if(at){st.lat=at[0];st.lon=at[1];}if(pre){if(pre.half)st.size=pre.half*2;if(pre.rot!=null)st.rot=Math.round(pre.rot);st.z=16;}
   const W2=()=>V.clientWidth,H2=()=>V.clientHeight,TS=256;
   const wx=(lon,z)=>(lon+180)/360*TS*2**z,wy=(lat,z)=>{const r=lat*Math.PI/180;return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*TS*2**z;};
   const lonOf=(x,z)=>x/(TS*2**z)*360-180,latOf=(y,z)=>{const n=Math.PI-2*Math.PI*y/(TS*2**z);return 180/Math.PI*Math.atan(Math.sinh(n));};
@@ -5775,6 +5776,16 @@ function parseLL(q){q=q.trim();let m=q.match(/[@=](-?\d{1,3}\.\d+),\s*(-?\d{1,3}
     let la=v[0][0],lo=v[1][0];if(v[0][1]==='E'||v[0][1]==='W'){[la,lo]=[lo,la];}if(Math.abs(la)<=90&&Math.abs(lo)<=180)return [la,lo];}
   return null;}
 window.__osm.parseLL=parseLL;
+
+/* v1.07: editor – turn / rebuild a map that came from the real world */
+setTimeout(()=>{try{const sec=document.getElementById('sec_view');if(!sec)return;const d=document.createElement('details');d.id='sec_osm';d.open=true;
+  d.innerHTML='<summary>Real-world map</summary><p class="muted" id="osm_info" style="margin:4px 0"></p><div class="row"><button id="osm_turn" title="Open the area picker on this place: change the Turn angle or the size, then build again">🔄 Turn / rebuild</button><button id="osm_new" title="Make a new map from real streets">📍 New from real streets</button></div>';
+  sec.parentNode.insertBefore(d,sec);
+  const upd=()=>{const s=typeof MAP!=='undefined'&&MAP&&MAP.osmSrc;$('osm_turn').style.display=s?'':'none';$('osm_info').textContent=s?('This map is from real streets · turned '+(MAP.rot||0)+'° · '+Math.round(s.half*2)+' m'):'Build a map from the real streets of any place.';};
+  setInterval(()=>{if(mode==='editor')upd();},800);upd();
+  $('osm_turn').onclick=()=>{const s=MAP.osmSrc;if(!s){toast('This map is not from real streets');return;}osmPick([s.lat,s.lon],false,{half:s.half,rot:s.rot});toast('Move the Turn slider, then 🏗 Build this area');};
+  $('osm_new').onclick=()=>osmPick();
+}catch(e){console.warn(e);}},150);
 
 /* ---------- v0.96: holiday city – menorahs on roofs (Hanukkah), Christmas trees in parks and on roofs, gifts to collect ---------- */
 const HOL={mode:(()=>{try{return localStorage.getItem('cd:hol')||'auto';}catch(_){return 'auto';}})(),gifts:[],spawnT:2};
@@ -6527,7 +6538,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.06 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.07 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
