@@ -414,6 +414,8 @@ button.ib i,button.ib span{align-self:center!important;margin:0!important;text-a
 #osmpick .pb label{display:flex;align-items:center;gap:6px;font-size:13px}#osmpick .pb .go{background:#2e9e4f;font-weight:700}
 #osmpick .zr{display:flex;gap:4px}#osmpick .cr{width:100%;margin:0;text-align:center;font-size:10px;color:#8a94a2}
 #zonelist button{max-width:100%;white-space:normal;text-align:left;line-height:1.25;height:auto}
+#lanebar{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);z-index:30;display:none;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:rgba(15,20,28,.92);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 10px;color:#fff;font:13px sans-serif;max-width:94vw}
+#lanebar button{padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:#253041;color:#fff;cursor:pointer}#lanebar button:disabled{opacity:.4}
 </style>
 </head>
 <body>
@@ -2841,6 +2843,7 @@ function normMap(m){
   if(m.mask&&Array.isArray(m.mask.rows)){const mc=o.cols*4,mr=o.rows*4,rr=[];for(let j=0;j<mr;j++){let s=String(m.mask.rows[j]||'').replace(/[^01]/g,'0');if(s.length<mc)s+='0'.repeat(mc-s.length);rr.push(s.slice(0,mc));}o.mask={rows:rr};}
   if(m.spawn)o.spawn={x:num(m.spawn.x,0),y:num(m.spawn.y,0),a:num(m.spawn.a,0)};
   if(Array.isArray(m.streets))o.streets=m.streets.filter(s=>s&&s.n&&Array.isArray(s.p)).slice(0,1500).map(s=>({n:String(s.n).slice(0,60),p:s.p.slice(0,200)}));
+  if(Array.isArray(m.lanes))o.lanes=m.lanes.filter(l=>l&&Array.isArray(l.p)&&l.p.length>=2).slice(0,400).map(l=>({p:l.p.slice(0,200).map(q=>[+q[0]||0,+q[1]||0]),w:clamp(+l.w||150,40,400)}));
   if(m.osm)o.osm=String(m.osm);
   if(m.osmSrc&&isFinite(m.osmSrc.lat)&&isFinite(m.osmSrc.lon))o.osmSrc={lat:+m.osmSrc.lat,lon:+m.osmSrc.lon,half:+m.osmSrc.half||450,rot:+m.rot||0};if(m.rot!=null)o.rot=+m.rot;
   return o;
@@ -5835,11 +5838,12 @@ setTimeout(()=>{try{const b=document.createElement('button');b.className='pgl';b
 window.__hol={HOL,holOn};
 
 /* ---------- v0.98: map from a photo – take a picture, pick one from the gallery or paste a link; it becomes the map's background ---------- */
+let PM_CELLS=40;
 async function photoMap(blob,label){
   try{toast('🖼 Preparing the photo…');
     const url=URL.createObjectURL(blob),im=await loadImg(url),k=Math.min(1,2600/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*k),h=Math.round(im.naturalHeight*k);
     const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(url);
-    const sc=clamp(5120/Math.max(w,h),0.5,8),ww=w*sc,hh=h*sc,name='Photo map '+new Date().toLocaleDateString('en-GB').replace(/\//g,'-')+' '+new Date().toTimeString().slice(0,5);
+    const sc=PM_CELLS?clamp(PM_CELLS*128/Math.max(w,h),0.05,20):Math.min(1/k,20480/Math.max(w,h))   /* 0 = same size as the photo: 1 photo pixel = 1 map pixel */,ww=w*sc,hh=h*sc,name='Photo map '+new Date().toLocaleDateString('en-GB').replace(/\//g,'-')+' '+new Date().toTimeString().slice(0,5);
     if(mode!=='editor')openEditor();
     setMap({name,cols:clamp(Math.ceil(ww/128),8,160),rows:clamp(Math.ceil(hh/128),8,160),ground:'#7d7f78',assets:{bg1:{name:label||'photo',src:c.toDataURL('image/jpeg',0.82),w,h,s:0.5}},backdrop:{a:'bg1',x:0,y:0,w:ww,h:hh},spawn:{x:ww/2,y:hh/2,a:0}});
     try{adoptMap(normMap(MAP));}catch(_){}
@@ -5850,9 +5854,11 @@ async function photoMap(blob,label){
 function photoMapDlg(){
   modal('Map from a photo',
    '<p class="muted">The picture becomes the background of a new map. Then you draw roads, buildings and zones on top of it in the editor.</p>'+
+   '<label class="ck"><input type="checkbox" id="pm_same"'+(PM_CELLS?'':' checked')+'> 📐 Same size as the photo (1 photo pixel = 1 map pixel)</label><label>Map size (long side): <b id="pm_sv"></b><input type="range" id="pm_sz" min="16" max="160" step="4" value="'+PM_CELLS+'"></label><p class="muted" id="pm_hint" style="font-size:12px;margin:2px 0 8px"></p>'+
    '<div class="row"><button id="pm_cam">📷 Take a photo</button><button id="pm_gal">🖼 From gallery</button><button id="pm_url">🔗 From a link</button></div>'+
    '<input type="file" id="pm_f1" accept="image/*" capture="environment" style="display:none"><input type="file" id="pm_f2" accept="image/*" style="display:none">'+
    '<p class="muted" style="font-size:12px">Use pictures you took yourself or have the right to use. Pictures from a link work only if that site allows it.</p>');
+  const sv=()=>{$('pm_sz').disabled=!PM_CELLS;$('pm_sv').textContent=PM_CELLS?PM_CELLS+' tiles ('+(PM_CELLS*128)+' px)':'from the photo';$('pm_hint').textContent='1 tile = 128 px ≈ one road lane-pair ≈ 2 car lengths. A road in the photo should be about 1 tile wide – if roads in your photo look thin, make the map bigger.';};sv();$('pm_sz').oninput=e=>{PM_CELLS=+e.target.value;sv();};$('pm_same').onchange=e=>{PM_CELLS=e.target.checked?0:(+$('pm_sz').value||40);sv();};
   const pick=f=>{if(f){closeModal();photoMap(f,f.name);}};
   $('pm_cam').onclick=()=>$('pm_f1').click();$('pm_gal').onclick=()=>$('pm_f2').click();
   $('pm_f1').onchange=e=>pick(e.target.files[0]);$('pm_f2').onchange=e=>pick(e.target.files[0]);
@@ -5957,6 +5963,48 @@ async function accOpen(){
 }
 setTimeout(()=>{try{const b=document.createElement('button');b.className='pgl admonly';b.style.display=window.ISADMIN?'':'none';b.textContent='🔐 Access (admin)';b.onclick=accOpen;const g=$('p_gq');g.parentNode.insertBefore(b,g.nextSibling);}catch(e){}},140);
 window.__acc={accOpen};
+
+/* ---------- v1.09: smooth roads – click points, the road bends smoothly between them (no staircase) ---------- */
+function laneSmooth(p){if(p.length<3)return p.slice();const o=[];for(let k=0;k<p.length-1;k++){const a=p[k-1]||p[k],b=p[k],c=p[k+1],d=p[k+2]||c,n=Math.max(4,Math.ceil(Math.hypot(c[0]-b[0],c[1]-b[1])/24));
+  for(let i=0;i<n;i++){const t=i/n,t2=t*t,t3=t2*t;o.push([0,1].map(j=>0.5*((2*b[j])+(-a[j]+c[j])*t+(2*a[j]-5*b[j]+4*c[j]-d[j])*t2+(-a[j]+3*b[j]-3*c[j]+d[j])*t3)));}}o.push(p[p.length-1]);return o;}
+function laneCache(l){if(!l._s||l._n!==l.p.length+':'+l.w){l._s=laneSmooth(l.p);l._n=l.p.length+':'+l.w;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const[x,y] of l._s){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);}l._b=[x0-l.w,y0-l.w,x1+l.w,y1+l.w];}return l._s;}
+function laneAt(x,y){const L=typeof MAP!=='undefined'&&MAP&&MAP.lanes;if(!L)return false;
+  for(const l of L){const s=laneCache(l),b=l._b;if(x<b[0]||x>b[2]||y<b[1]||y>b[3])continue;const r2=(l.w/2)**2;
+    for(let k=1;k<s.length;k++){const ax=s[k-1][0],ay=s[k-1][1],dx=s[k][0]-ax,dy=s[k][1]-ay,L2=dx*dx+dy*dy||1,t=clamp(((x-ax)*dx+(y-ay)*dy)/L2,0,1),ex=ax+dx*t-x,ey=ay+dy*t-y;if(ex*ex+ey*ey<=r2)return true;}}
+  return false;}
+function laneDraw(l,ed,preview){const s=laneCache(l);if(s.length<2)return;const path=()=>{ctx.beginPath();ctx.moveTo(s[0][0],s[0][1]);for(let k=1;k<s.length;k++)ctx.lineTo(s[k][0],s[k][1]);};
+  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+  path();ctx.strokeStyle='#2b2f35';ctx.lineWidth=l.w+10;ctx.stroke();
+  path();ctx.strokeStyle='rgba(235,235,235,.75)';ctx.lineWidth=l.w;ctx.stroke();
+  path();ctx.strokeStyle='#3a3e44';ctx.lineWidth=l.w-10;ctx.stroke();
+  if(l.w>=110){path();ctx.setLineDash([34,26]);ctx.strokeStyle='rgba(230,215,150,.9)';ctx.lineWidth=4;ctx.stroke();ctx.setLineDash([]);}
+  if(ed){ctx.fillStyle=preview?'#ffd54a':'rgba(90,200,250,.9)';for(const[x,y] of l.p){ctx.beginPath();ctx.arc(x,y,7/ec.z,0,TAU);ctx.fill();}}
+  ctx.restore();}
+{const _g=drawGround;drawGround=function(vx0,vy0,vx1,vy1){_g(vx0,vy0,vx1,vy1);const L=MAP&&MAP.lanes;if(!L)return;for(const l of L){laneCache(l);const b=l._b;if(b[0]>vx1||b[2]<vx0||b[1]>vy1||b[3]<vy0)continue;laneDraw(l,mode==='editor',false);}
+  if(mode==='editor'&&ED.lane&&ED.lane.p.length)laneDraw(ED.lane,true,true);};}
+/* driving on a smooth road counts as being on the road (no off-road tickets) */
+{const _c=trafCell;trafCell=function(x,y){const r=_c(x,y);if(r&&!r.r&&laneAt(x,y))r.r=true;return r;};}
+/* editor tool */
+const LANE={w:150};
+function laneFinish(){if(ED.lane&&ED.lane.p.length>=2){pushUndo();(MAP.lanes||(MAP.lanes=[])).push({p:ED.lane.p,w:ED.lane.w});markDirty();toast('🛣 Smooth road added');}ED.lane=null;laneBar();}
+function laneBar(){let b=document.getElementById('lanebar');if(!b){b=document.createElement('div');b.id='lanebar';document.body.appendChild(b);}
+  if(mode!=='editor'||ED.tool!=='lane'){b.style.display='none';return;}b.style.display='flex';
+  const n=ED.lane?ED.lane.p.length:0;
+  b.innerHTML='<span>🛣 Smooth road · '+(n?n+' point'+(n>1?'s':''):'tap points on the map')+'</span><label>Width <input type="range" id="ln_w" min="80" max="320" step="10" value="'+LANE.w+'"> <b>'+LANE.w+'</b></label>'+
+   '<button id="ln_ok"'+(n<2?' disabled':'')+'>✔ Finish</button><button id="ln_bk"'+(n?'':' disabled')+'>↶ Point</button><button id="ln_x"'+(n?'':' disabled')+'>✕ Cancel</button><button id="ln_del" title="Delete the last smooth road">🗑 Last road</button>';
+  $('ln_w').oninput=e=>{LANE.w=+e.target.value;if(ED.lane)ED.lane.w=LANE.w;b.querySelector('b').textContent=LANE.w;};
+  $('ln_ok').onclick=laneFinish;$('ln_bk').onclick=()=>{if(ED.lane){ED.lane.p.pop();ED.lane._n=null;}laneBar();};$('ln_x').onclick=()=>{ED.lane=null;laneBar();};
+  $('ln_del').onclick=()=>{if(MAP.lanes&&MAP.lanes.length){pushUndo();MAP.lanes.pop();markDirty();toast('Smooth road deleted');}};}
+{const _d=edDown;edDown=function(wx,wy,px,py,e){if(ED.tool!=='lane')return _d(wx,wy,px,py,e);
+  if(e&&e.button===2){/* right click on a road = delete it */const L=MAP.lanes||[];for(let i=L.length-1;i>=0;i--){const keep=MAP.lanes;MAP.lanes=[L[i]];const hit=laneAt(wx,wy);MAP.lanes=keep;if(hit){pushUndo();L.splice(i,1);markDirty();toast('Smooth road deleted');return;}}return;}
+  if(!ED.lane)ED.lane={p:[],w:LANE.w};const p=ED.lane.p,last=p[p.length-1];
+  if(last&&Math.hypot(last[0]-wx,last[1]-wy)<14/ec.z){laneFinish();return;}   /* tap the last point again = finish */
+  p.push([Math.round(wx),Math.round(wy)]);ED.lane._n=null;laneBar();};}
+{const _s=setTool;setTool=function(t){if(ED.tool==='lane'&&t!=='lane'&&ED.lane)laneFinish();_s(t);laneBar();};}
+addEventListener('keydown',e=>{if(mode!=='editor'||ED.tool!=='lane')return;if(e.key==='Enter'){laneFinish();}else if(e.key==='Escape'){ED.lane=null;laneBar();}else if(e.key==='Backspace'&&ED.lane){ED.lane.p.pop();ED.lane._n=null;laneBar();e.preventDefault();}});
+setTimeout(()=>{try{const t=$('edtools');const b=document.createElement('button');b.dataset.tool='lane';b.textContent='Smooth road';b.title='Smooth road (L): tap points – the road curves smoothly between them. Tap the last point again or press Enter to finish. Right-click a smooth road to delete it.';b.onclick=()=>setTool('lane');t.insertBefore(b,t.children[2]||null);}catch(e){}},50);
+setInterval(()=>{const b=document.getElementById('lanebar');if(b&&b.style.display==='flex'&&mode!=='editor')b.style.display='none';},500);
+window.__lane={laneAt,laneFinish,LANE};
 
 /* ---------- v0.63: race bots – solo race vs computer drivers, or pairs (you + partner vs two rivals); skill levels incl. Auto that adapts to you ---------- */
 const BOTS=[];
@@ -6538,7 +6586,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.08 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.10 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
