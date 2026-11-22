@@ -6376,7 +6376,7 @@ function legalOpen(tab){
   modal('⚖ Legal – Drive by ViRally','<div class="polL">'+[['terms','📜 Terms'],['privacy','🔒 Privacy'],['credits','🎨 Credits']].map(t=>'<button data-lg="'+t[0]+'" class="'+(t[0]===tab?'on':'')+'">'+t[1]+'</button>').join('')+'</div><div class="lgl">'+T[tab]+'</div>');
   document.querySelectorAll('#mbody [data-lg]').forEach(b=>b.onclick=()=>legalOpen(b.dataset.lg));
 }
-setTimeout(()=>{try{const f=document.createElement('div');f.id='legal';f.innerHTML='© '+LEGAL_Y+' ViRally · All rights reserved · <a href="#" id="lgT">Terms</a> · <a href="#" id="lgP">Privacy</a> · <a href="#" id="lgC">Credits</a>';
+setTimeout(()=>{try{const f=document.createElement('div');f.id='legal';f.innerHTML='© '+LEGAL_Y+' ViRally · All rights reserved · <a href="#" id="lgT">Terms</a> · <a href="#" id="lgP">Privacy</a> · <a href="#" id="lgC">Credits</a> · <span id="lgV"></span>';setTimeout(()=>{const v=document.getElementById('ver'),t=document.getElementById('lgV');if(v&&t)t.textContent=v.textContent.replace('Version ','v');},200);
  $('pick').appendChild(f);$('lgT').onclick=e=>{e.preventDefault();legalOpen('terms');};$('lgP').onclick=e=>{e.preventDefault();legalOpen('privacy');};$('lgC').onclick=e=>{e.preventDefault();legalOpen('credits');};
  const m=document.createElement('meta');m.name='copyright';m.content='© '+LEGAL_Y+' ViRally. All rights reserved.';document.head.appendChild(m);
  const q=document.createElement('button');q.className='pgl';q.textContent='⚖ Legal';q.onclick=()=>legalOpen('terms');const g=$('p_gq');g.parentNode.insertBefore(q,g.nextSibling);}catch(e){console.error(e);}},0);
@@ -6596,7 +6596,7 @@ if(!CTLS.some(c=>c[0]===CTL))CTL='joy';
 
  const cb=document.createElement('button');cb.id='tctl';cb.title='Change controls';document.body.appendChild(cb);
  const ib=document.createElement('button');ib.id='tinv';ib.title='Flip tilt direction';ib.textContent='⇄';document.body.appendChild(ib);
- const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.11 · 10 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
+ const ver=document.createElement('div');ver.id='ver';ver.textContent='Version 1.12 · 23 Nov 2026';{const h=$('menu').querySelector('h1');if(h&&h.parentNode)h.parentNode.insertBefore(ver,h.nextSibling);else $('menu').appendChild(ver);}
  window.applyCtl=function(){
   const arr=CTL==='joy'||CTL==='auto';
   $('wheel').style.display=CTL==='wheel'?'':'none';
